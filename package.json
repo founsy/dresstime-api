@@ -1,0 +1,28 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "description": "API Interface",
+  "main": "app.js",
+  "dependencies": {
+    "bcryptjs": "^0.7.12",
+    "body-parser": "^1.12.4",
+    "cookie-parser": "^1.3.3",
+    "method-override": "^2.2.0",
+    "express-session": "^1.8.2",
+    "express": "^4.12.4",
+    "mongodb": "^2.0.33",
+    "mysql": "^2.6.2",
+    "request": "^2.55.0",
+    "passport": "^0.2.1",
+   	"passport-facebook": "^1.0.3",
+   	"passport-local": "^1.0.0",
+    "q": "^1.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Fabian Langlet",
+  "license": "ISC"
+}

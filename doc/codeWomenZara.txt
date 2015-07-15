@@ -1,0 +1,149 @@
+
+
+367501 - Coats
+358002 - Jackets
+358003 - Dresses
+	400009 - Mini
+	718502 - Midi
+	400008 - Maxi
+399001 - Jumpsuits
+358004 - Tops
+	401033 - Shirts
+	718512 - Plain
+	727001 - Crochet
+	718513 - Florals
+	718515 - Stripes
+	718516 - Checks
+358005 - Trousers
+	401019 - Skinny
+	401020 - Smart
+	722056 - Flowing
+	401021 - Relaxed fit
+	718504 - Culottes
+	401016 - Leggings
+404505 - Shorts
+361514 - Jeans
+	400017 - Skinny
+	431510 - Damaged
+	401002 - Boyfriend
+	401001 - Flared
+	718505 - High Waisted
+716025 - Denim
+358006 - Skirts
+	401023 - Mini
+	401024 - Midi
+	401025 - Maxi
+358007 - Knitwear
+	727004 - Tops
+	401012 - Sweaters
+	401011 - Cardigans
+	718503 - Dresses
+358008 - T-shirts
+	718509 - Sleeveless
+	401008 - Short Sleeve
+	401009 - Long Sleeve
+364001 - Sweatshirts
+358009 - Shoes
+
+
+
+var categoriesId = [
+{"id":399001,"name":"Jumpsuits","subtype":""},
+{"id":401033,"name":"Shirts","subtype":""},
+{"id":718512,"name":"Tops","subtype":"Plain"},
+{"id":727001,"name":"Tops","subtype":"Crochet"},
+{"id":718515,"name":"Tops","subtype":"Stripes"},
+{"id":718516,"name":"Tops","subtype":"Checks"},
+{"id":401019,"name":"Trousers","subtype":"Skinny"},
+{"id":401020,"name":"Trousers","subtype":"Smart"},
+{"id":722056,"name":"Trousers","subtype":"Flowing"},
+{"id":401021,"name":"Trousers","subtype":"Relaxed fit"},
+{"id":718504,"name":"Trousers","subtype":"Culottes"},
+{"id":401016,"name":"Trousers","subtype":"Leggings"},
+{"id":404505,"name":"Shorts","subtype":""},
+{"id":400017,"name":"Jeans","subtype":"Skinny"},
+{"id":431510,"name":"Jeans","subtype":"Damaged"},
+{"id":401002,"name":"Jeans","subtype":"Boyfriend"},
+{"id":401001,"name":"Jeans","subtype":"Flared"},
+{"id":718505,"name":"Jeans","subtype":"High Waisted"},
+{"id":401023,"name":"Skirts","subtype":"Mini"},
+{"id":401024,"name":"Skirts","subtype":"Midi"},
+{"id":401025,"name":"Skirts","subtype":"Maxi"},
+{"id":727004,"name":"Knitwear","subtype":"Tops"},
+{"id":401012,"name":"Knitwear","subtype":"Sweaters"},
+{"id":401011,"name":"Knitwear","subtype":"Cardigans"},
+{"id":401011,"name":"Knitwear","subtype":"Dresses"},
+{"id":718509,"name":"T-shirts","subtype":"Sleeveless"},
+{"id":401008,"name":"T-shirts","subtype":"Short Sleeve"},
+{"id":401009,"name":"T-shirts","subtype":"Long Sleeve"},
+{"id":401009,"name":"Sweatshirts","subtype":""}
+];
+
+
+Pattern - Women
++----------+----------------+
+| count(1) | clothe_pattern |
++----------+----------------+
+|       35 | check          |
+|        4 | floral         |
+|       12 | gingham        |
+|      149 | Hstripe        |
+|       61 | jacquard       |
+|     1962 | plain          |
+|      205 | printed        |
+|        1 | Vstripe        |
++----------+----------------+
+
++----------+-------------+----------------+------------+
+| count(1) | clothe_type | clothe_subtype | clothe_cut |
++----------+-------------+----------------+------------+
+|       49 | maille      | CARDIGAN       |            |
+|        6 | maille      | CARDIGAN       | LONG       |
+|        2 | maille      | CARDIGAN       | SLEEVE     |
+|      104 | maille      | SWEATER        |            |
+|        6 | maille      | SWEATER        | LONG       |
+|        6 | maille      | SWEATER        | SLEEVE     |
+|       12 | pants       | CULOTTES       |            |
+|       14 | pants       | DUNGAREES      |            |
+|      129 | pants       | JEANS          |            |
+|        2 | pants       | JEANS          | RELAX FIT  |
+|       62 | pants       | JEANS          | SKINNY     |
+|       15 | pants       | JEGGINGS       |            |
+|        3 | pants       | JOGGING        |            |
+|      109 | pants       | SHORT          |            |
+|        3 | pants       | SHORT          | PLEATED    |
+|       12 | pants       | SHORT          | SLEEVE     |
+|        5 | pants       | SHORT          | SUIT       |
+|       72 | pants       | SKIRTS         |            |
+|       16 | pants       | SKIRTS         | LONG       |
+|       15 | pants       | SKIRTS         | MIDI       |
+|       33 | pants       | SKIRTS         | MINI       |
+|        5 | pants       | SKIRTS         | PLEATED    |
+|      173 | pants       | TROUSERS       |            |
+|        2 | pants       | TROUSERS       | MINI       |
+|        2 | pants       | TROUSERS       | PLEATED    |
+|       33 | pants       | TROUSERS       | SKINNY     |
+|        3 | pants       | TROUSERS       | SLIM       |
+|       43 | top         | BLOUSE         |            |
+|        3 | top         | BLOUSE         | LONG       |
+|        2 | top         | BLOUSE         | PLEATED    |
+|       13 | top         | BLOUSE         | SLEEVE     |
+|      214 | top         | DRESSES        |            |
+|       40 | top         | DRESSES        | LONG       |
+|        4 | top         | DRESSES        | PLEATED    |
+|       22 | top         | DRESSES        | SLEEVE     |
+|      148 | top         | SHIRT          |            |
+|       18 | top         | SHIRT          | LONG       |
+|        2 | top         | SHIRT          | PLEATED    |
+|        6 | top         | SHIRT          | SLEEVE     |
+|      338 | top         | T-SHIRT        |            |
+|        6 | top         | T-SHIRT        | LONG       |
+|       47 | top         | T-SHIRT        | SLEEVE     |
+|      420 | top         | TOP            |            |
+|        4 | top         | TOP            | LONG       |
+|        8 | top         | TOP            | PLEATED    |
+|       22 | top         | TOP            | SLEEVE     |
+|       45 | top         | TUNIC          |            |
+|        2 | top         | TUNIC          | SLEEVE     |
++----------+-------------+----------------+------------+
+48 rows in set (0.00 sec)

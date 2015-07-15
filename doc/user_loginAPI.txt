@@ -1,0 +1,28 @@
+POST auth/login
+
+{
+  'username': 'toto',
+  'password': 'abcd'
+  }
+  
+  
+POST auth/registration
+
+{
+  'username': 'titi',
+  'password': 'dcba'
+  }
+  
+
+GET auth/logout
+
+GET /users/:username
+
+POST /users/
+PUT /users/
+DELETE /users/
+
+{ '_id': 5578360d1229537c690a7481,
+  'username': 'toto',
+  'password': '$2a$08$U7tXORFdOzBNPWA5NGlCLOWWZ8geRmztK4fEuYCd5miJ6xVw6awSe',
+  'avatar': 'http://placepuppy.it/images/homepage/Beagle_puppy_6_weeks.JPG' }
