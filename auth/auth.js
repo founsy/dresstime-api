@@ -55,7 +55,7 @@ passport.use(new ClientPasswordStrategy(
 passport.use(new BearerStrategy(
     function(accessToken, done) {
         AccessToken.findOne({ token: accessToken }, function(err, token) {
-
+            console.log("AccessToken");
             if (err) { 
             	return done(err); 
             }

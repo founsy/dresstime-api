@@ -15,23 +15,11 @@ var api = require('./routes/api');
 var routes = require('./routes/routes');
 var zara = require('./routes/zaraLoaderRoutes');
 var users = require('./routes/userRoutes');
+var dressing = require('./routes/dressingRoutes');
 
 
 var app = express();
 
-/*var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Authorization');
-
-    // intercept OPTIONS method
-    if ('OPTIONS' == req.method) {
-      res.send(200);
-    }
-    else {
-      next();
-    }
-}; */
 // Enables CORS
 app.use(function(req, res, next){
     res.header('Access-Control-Allow-Origin', '*');
@@ -42,7 +30,7 @@ app.use(function(req, res, next){
     res.end();
 });
 //app.use(allowCrossDomain);
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: 100000000}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(methodOverride('Authorization'));
@@ -53,6 +41,7 @@ app.use('/api', api);
 app.use('/users', users);
 app.use('/zara', zara);
 app.use('/oauth/token', oauth2.token);
+app.use('/dressing', dressing);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next){
