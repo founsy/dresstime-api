@@ -3,10 +3,11 @@ var rootPath = process.cwd();
 var express = require('express'),
 	router = express.Router(),
 	mongoDb = require(rootPath + '/db/mongodb'),
-    passport = require('passport');
+    passport = require('passport'),
+    User = require(rootPath + '/models/user');
 
 router.get('/:username', passport.authenticate('bearer', { session: false }) , function(req, res){
-	mongoDb.getUser(req.param('username'))
+    mongoDb.getUser(req.param('username'))
   		.then(function (result){ //case in which user already exists in db
     		res.send(result);
   	}).fail(function (error){
