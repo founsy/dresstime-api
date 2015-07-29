@@ -201,12 +201,12 @@ exports.menSportwearCombineTop = [
   ];
 
 exports.womenBusiness = [
-  ["","teeshirt","top","shirt","jumper/pull","cardigan/gilet","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
+  ["","teeshirt","top","shirt","jumper","cardigan","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
   ["teeshirt","0","0","0","80","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"  ],
   ["top","0","0","0","80","60","0","80","50","50","80","70","50","0","0","50","70","80","0","0","0","0","0","60"  ],
   ["shirt ","0","0","0","90","80","0","100","50","85","100","90","70","0","0","65","70","90","0","0","0","0","0","80"  ],
-  ["jumper/pull","80","80","90","0","0","0","80","50","85","95","85","65","0","0","60","40","85","0","0","0","0","0","60"  ],
-  ["cardigan/gilet","0","60","80","0","0","0","80","50","55","90","80","60","0","0","55","70","85","0","55","0","70","0","65"  ],
+  ["jumper","80","80","90","0","0","0","80","50","85","95","85","65","0","0","60","40","85","0","0","0","0","0","60"  ],
+  ["cardigan","0","60","80","0","0","0","80","50","55","90","80","60","0","0","55","70","85","0","55","0","70","0","65"  ],
   ["sweater","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"  ],
   ["jacket","0","80","100","80","80","0","0","0","90","90","90","70","0","0","60","60","90","0","50","0","85","0","80"  ],
   ["coat","0","50","50","50","50","0","0","0","80","100","85","70","0","0","70","90","100","0","80","0","100","0","50"  ],
@@ -307,6 +307,8 @@ exports.womenSportwear = [
   ["jumpsuits","0","0","0","0","20","0","70","60","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"  ],
   ["shorts","80","70","75","75","60","90","70","70","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"  ]
 ];
+
+exports.cut = ["sleeve", "flowing", "smart", "skinny", "boyfriend", "flared", "highwaisted", "short", "midlenght", "long", "casual", "evening", "straight"];
 
 exports.getWeatherGroup = function(code){
 	//1 	sun   [31, 32, 33, 34, 36]
