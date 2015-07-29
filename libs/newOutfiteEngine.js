@@ -34,17 +34,6 @@ function getMatrixForStyle(style, sex){
 
 // arrTypeClothes : [ArrayOfClothesByType]
 function calculateOutfits(style, sex, clothes, types){
-    /*var tempCoupleScoring = [];
-    
-    for (var typeClothe = 0; typeClothe < arrTypeClothes.length; typeClothe++){  
-        for (var nextClothe = typeClothe+1; nextClothe < arrTypeClothes.length; nextClothe++){
-            tempCoupleScoring.push(calculateScore2Clothe(style, sex, arrTypeClothes[typeClothe], arrTypeClothes[nextClothe]));
-        }
-    }*/
-    //console.log(JSON.stringify(tempCoupleScoring[0]));
-    //console.log(JSON.stringify(tempCoupleScoring[1]));
-    //console.log(JSON.stringify(tempCoupleScoring[2]));
-
     var all = clothes.filter(function(x){return (types.indexOf(x.clothe_type) > -1)}); 
     
     console.log(all.length);
@@ -81,7 +70,6 @@ function scoreRecursif(style, sex, outfits, combineType){
     }
     return (score/k);
 }
-
 
 function k_combinations(set, k) {
 	var i, j, combs, head, tailcombs;
@@ -128,28 +116,6 @@ function isDifferentType(head){
     return true;
 }
 
-function calculateIntermediateScore(id, list2){
-    for(var j = 0; j < list2.length; j++){
-        if (list2[j].ids.indexOf(id) > -1)
-            return list2[j].ids;
-    }
-}
-
-
-function calculateScore2Clothe(style, sex, list1, list2){
-    var resultScoring = [];
-    for (var type1 = 0; type1 < list1.length; type1++){
-        for (var type2 = 0; type2 < list2.length; type2++){
-            var elem1 = list1[type1]; 
-            var elem2 = list2[type2];
-            var scoring = scoring2Elements(style, sex, elem1, elem2);
-            var obj = {};
-            //obj["elem1.clothe_id, elem2.clothe_id"] = scoring;
-            resultScoring.push({ elems: [elem1, elem2], score: scoring});    
-        }
-    }
-    return resultScoring;       
-}
 
 function scoring2Elements(style, sex, elem1, elem2) {
     var ptsColor = colorMatching(elem1, elem2);
