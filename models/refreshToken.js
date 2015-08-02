@@ -10,6 +10,10 @@ var mongoose = require('mongoose'),
             type: String,
             required: true
         },
+        uuid: {
+            type: Stirng,
+            required: false
+        },
         token: {
             type: String,
             unique: true,

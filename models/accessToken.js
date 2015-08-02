@@ -12,7 +12,10 @@ var AccessToken = new Schema({
         type: String,
         required: true
     },
-
+    uuid: {
+        type: Stirng,
+        required: false
+    },
     token: {
         type: String,
         unique: true,

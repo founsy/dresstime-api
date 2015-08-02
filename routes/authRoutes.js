@@ -7,18 +7,22 @@ var express = require('express'),
     User = require(rootPath + '/models/user');
 
 //sends the request through our local signup strategy, and if successful takes user to homepage, otherwise returns then to signin page
-router.post('/registration', passport.authenticate('local-signup'), function(req, res) {
+router.post('/registration', function(req, res) {
   	// If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.
-    res.send(req.user);
-});
-
-//sends the request through our local login/signin strategy, and if successful takes user to homepage, otherwise returns then to signin page
-router.post('/login', passport.authenticate('local-signin'), function(req, res) {
-  	  // If this function gets called, authentication was successful.
-    	// `req.user` contains the authenticated user.
-    	req.session.username = req.user.username;
-  		res.send({auth: true, id: req.session.id, username: req.session.username});
+    console.log(req.body.user);
+     var user = new User({ 
+        username: req.body.user.username, 
+        password: req.body.user.password 
+    });
+    
+    user.save(function(err, user) {
+        if(!err) {
+            res.send("New user - %s:%s", user.username, user.password);
+        }else {
+            res.send(err);
+        }
+    });
 });
 
 //logs user out of site, deleting them from the session, and returns to homepage
@@ -33,3 +37,5 @@ router.get('/logout', function(req, res){
 		res.send("Already logout!");
 	}
 });
+
+module.exports = router;

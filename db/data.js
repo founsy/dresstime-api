@@ -201,8 +201,8 @@ exports.menSportwearCombineTop = [
   ];
 
 exports.womenBusiness = [
-  ["","teeshirt","top","shirt","jumper","cardigan","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
-  ["teeshirt","0","0","0","80","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"  ],
+  ["","tshirt","top","shirt","jumper","cardigan","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
+  ["tshirt","0","0","0","80","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"  ],
   ["top","0","0","0","80","60","0","80","50","50","80","70","50","0","0","50","70","80","0","0","0","0","0","60"  ],
   ["shirt ","0","0","0","90","80","0","100","50","85","100","90","70","0","0","65","70","90","0","0","0","0","0","80"  ],
   ["jumper","80","80","90","0","0","0","80","50","85","95","85","65","0","0","60","40","85","0","0","0","0","0","60"  ],
@@ -228,8 +228,8 @@ exports.womenBusiness = [
 ];
 
 exports.womenCasualChic = [
-  ["","teeshirt","top","shirt","jumper/pull","cardigan/gilet","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
-  ["teeshirt","0","0","80","80","40","10","70","20","40","40","20","10","0","0","10","0","30","10","0","0","0","0","0"  ],
+  ["","tshirt","top","shirt","jumper/pull","cardigan/gilet","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
+  ["tshirt","0","0","80","80","40","10","70","20","40","40","20","10","0","0","10","0","30","10","0","0","0","0","0"  ],
   ["top","0","0","60","60","60","20","80","20","60","60","50","10","0","0","40","20","80","60","0","0","0","0","40"  ],
   ["shirt ","80","60","0","90","80","60","100","80","80","90","80","80","60","50","70","80","80","60","0","0","0","0","70"  ],
   ["jumper/pull","80","60","90","0","0","0","70","70","70","80","70","60","40","45","70","50","70","60","0","0","0","0","60"  ],
@@ -255,8 +255,8 @@ exports.womenCasualChic = [
 ];
 
 exports.womenFashion = [
-  ["","teeshirt","top","shirt","jumper/pull","cardigan/gilet","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
-  ["teeshirt","0","0","30","80","60","70","90","70","70","50","60","80","100","100","100","100","100","100","0","0","0","0","0"  ],
+  ["","tshirt","top","shirt","jumper/pull","cardigan/gilet","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
+  ["tshirt","0","0","30","80","60","70","90","70","70","50","60","80","100","100","100","100","100","100","0","0","0","0","0"  ],
   ["top","0","0","10","80","60","20","90","20","70","60","70","80","90","100","100","90","80","60","0","0","0","0","80"  ],
   ["shirt ","0","10","0","30","30","60","50","50","70","20","30","70","70","80","70","80","80","60","0","0","0","0","70"  ],
   ["jumper/pull","80","80","30","0","0","0","70","70","70","50","50","60","90","80","80","95","90","80","0","0","0","0","70"  ],
@@ -282,8 +282,8 @@ exports.womenFashion = [
 ];
 
 exports.womenSportwear = [
-  ["","teeshirt","top","shirt","jumper/pull","cardigan/gilet","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
-  ["teeshirt","0","0","80","90","80","100","80","60","10","70","80","90","85","50","60","60","40","30","0","0","0","0","80"  ],
+  ["","tshirt","top","shirt","jumper/pull","cardigan/gilet","sweater","jacket","coat","trousers-flowing","trousers-smart","trousers-skinny","jeans-skinny","jeans-boyfriend","jeans-flared","jeans-highwaisted","skirts-short","skirts-midlenght","skirts-long","dress-casual","dress-evening","dress-straight","jumpsuits","shorts"  ],
+  ["tshirt","0","0","80","90","80","100","80","60","10","70","80","90","85","50","60","60","40","30","0","0","0","0","80"  ],
   ["top","0","0","70","50","40","90","50","30","10","60","60","80","70","20","40","50","20","20","0","0","0","0","70"  ],
   ["shirt ","80","70","0","90","70","90","60","60","20","60","80","80","80","50","60","80","20","20","0","0","0","0","75"  ],
   ["jumper/pull","90","50","90","0","0","0","80","70","20","80","70","100","90","50","70","65","20","10","0","0","0","0","75"  ],
