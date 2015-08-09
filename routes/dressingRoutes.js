@@ -4,11 +4,12 @@ var express = require('express'),
 	router = express.Router(),
     passport = require('passport'),
 	mongoDb = require(rootPath + '/db/mongodb'),
-    Clothe = require(rootPath + '/models/clothe');
+    Clothe = require(rootPath + '/models/clothe'),
+    ObjectId = require('mongoose').Types.ObjectId; 
 
 router.get('/clothes/', passport.authenticate('bearer', { session: false }), function(req, res){
     var user = req.user;
-    Clothe.find({clothe_userid: req.user._id}, function(err, clothes){
+    Clothe.find({clothe_userid: new ObjectId(user._id)}, function(err, clothes){
         if(err)
            res.send(500, err);
         else
@@ -56,28 +57,32 @@ router.put('/clothes/', passport.authenticate('bearer', { session: false }), fun
 
 router.get('/clothes/:id', passport.authenticate('bearer', { session: false }), function(req, res){
     var user = req.user;
-    Clothe.findOne({clothe_userid: req.user._id, clothe_id: req.param('id')}, function(err, clothes){
-        if(err)
+    console.log("get clothe by id");  
+    console.log("ID " + req.param('id'));
+    Clothe.findOne({clothe_id: req.param('id')}, function(err, clothes){
+        console.log(err);
+        if(err){
            res.send(500, err);
-        else
-            res.send(clothes);            
+        } else {
+            res.send(clothes);  
+        }
     });
 });
 
 router.delete('/clothes/:id', passport.authenticate('bearer', { session: false }), function(req, res){
     var user = req.user;
     
-    Clothe.remove({clothe_userid: req.user._id, clothe_id: req.param('id')}, function(err, doc){
+    Clothe.remove({clothe_id: req.param('id')}, function(err, doc){
         if (err) 
             return res.send(500, { error: err });
         else
-            return res.send("succesfully saved");
+            return res.send({ succeeded : true, msg : "succesfully deleted"});
     });
 });
 
-router.get('/clothes/ids/', passport.authenticate('bearer', { session: false }), function(req, res){
-    var user = req.user;
-    Clothe.find({clothe_userid: req.user._id}, function(err, clothes){
+router.get('/clothesIds/', passport.authenticate('bearer', { session: false }), function(req, res){
+    var user = req.user;   
+    Clothe.find({clothe_userid: new ObjectId(user._id)}, function(err, clothes){
         if(err) {
            res.send(500, err);
         } else {
@@ -85,6 +90,7 @@ router.get('/clothes/ids/', passport.authenticate('bearer', { session: false }),
             for (var item in clothes){
                 clothesId.push({ id : clothes[item].clothe_id});
             }
+            console.log(JSON.stringify(clothesId));
             res.send({list: clothesId}); 
         }
     });

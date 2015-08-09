@@ -26,15 +26,14 @@ router.post('/registration', function(req, res) {
 });
 
 //logs user out of site, deleting them from the session, and returns to homepage
-router.get('/logout', function(req, res){
+router.get('/logout', passport.authenticate('bearer', { session: false }), function(req, res){
   	if (req.user !== undefined){
 		var name = req.user.username;
 		console.log("LOGGIN OUT " + req.user.username)
 		req.logout();
-		req.session.notice = "You have successfully been logged out " + name + "!";
-		res.send("You have successfully been logged out " + name + "!");
+		res.send({ msg : "You have successfully been logged out " + name + "!" });
 	} else {
-		res.send("Already logout!");
+		res.send({ msg : "Already logout!" });
 	}
 });
 
