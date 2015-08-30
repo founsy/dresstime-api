@@ -16,22 +16,6 @@ function getClotheTypeDependingWeather(weather){
     
 }
 
-function getTemperatureRange(high, low){
-    if (low > 25){
-        //Really HOT Today
-        
-    }
-    else if (low > 15 && high >= 25) {
-        //Hot Today
-    }
-    else if (low > 15 && high < 25) {
-        //Maybe a clothe will be good
-    }
-    else if (low > 10 && low < 15 && high > 20 && high <= 25) {
-    
-    }
-    else if ()
-}
 
 function getMatrixForStyle(style, sex){
     switch(style.toLowerCase()){
@@ -71,13 +55,13 @@ function calculateOutfits(style, sex, clothes, types){
         var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
         //console.log("----------" + globalScore + "------------");
          if (globalScore > 60){
-            outfitsResult.push(combine[nbrComb]);
+            outfitsResult.push({outfit : combine[nbrComb], matchingRate: globalScore});
          }
          if (globalScore > maxScore)
              maxScore = globalScore;
     }
     console.log(maxScore);
-    console.log(combine.length);
+    console.log(outfitsResult.length);
     return outfitsResult;
 }
 
