@@ -58,32 +58,6 @@ router.post('/outfitsLoading', passport.authenticate('bearer', { session: false 
  	});
 });
 
-router.post('/myoutfits', passport.authenticate('bearer', { session: false }) , function(req, res) {
-    console.log(req.body);
-    if (typeof req.body !== 'undefined' && typeof req.body.style !== 'undefined' && typeof req.body.dressing !== 'undefined') {
-        var clothes = req.body.dressing;
-		var style = req.body.style;
-		var sex = req.body.sex;
-        
-		// Respond with results as JSON
-		var mailleList = clothes.filter(function(x){return x.clothe_type === "maille"}); 
-		var topList = clothes.filter(function(x){return x.clothe_type === "top"}); 
-		var pantsList = clothes.filter(function(x){return x.clothe_type === "pants"}); 
-
-		var outfits = [];
-        if (sex.toUpperCase() === "M"){
-            console.log("Men");
-            outfits = outfiteCalculator.calculateOutfits(style, mailleList, topList, pantsList, true);
-        } else if (sex.toUpperCase() === "F") {
-            console.log("Women");
-            outfits = newCalculator.calculateOutfits(style, sex, clothes, ["maille", "top", "pants"]);
-        }
-		res.send(outfits);
-	} else {
-		res.send(500,"Server Error"); return;
-	}
-});
-
 router.get('/outfits', passport.authenticate('bearer', { session: false }) , function(req, res) {
 	var query = require('url').parse(req.url,true).query;
 	var options = {limit: 10, skip: 10};

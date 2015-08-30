@@ -7,6 +7,32 @@ exports.calculateOutfits = function (style, sex, clothes, types){
 	return calculateOutfits(style, sex, clothes, types);
 }
 
+
+//weather: { code: "30", date: "", day: "", high: "", low:"", text: "" }
+// return array of type
+function getClotheTypeDependingWeather(weather){
+    //weather : value === 1 ? "sun" : value === 2 ? "cloud" : value === 3 ? "rain" : value === 4 ? "wind" : value === 5 ? "snow"
+    var weatherGroup = data.getWeatherGroup(weather.code);
+    
+}
+
+function getTemperatureRange(high, low){
+    if (low > 25){
+        //Really HOT Today
+        
+    }
+    else if (low > 15 && high >= 25) {
+        //Hot Today
+    }
+    else if (low > 15 && high < 25) {
+        //Maybe a clothe will be good
+    }
+    else if (low > 10 && low < 15 && high > 20 && high <= 25) {
+    
+    }
+    else if ()
+}
+
 function getMatrixForStyle(style, sex){
     switch(style.toLowerCase()){
 		case "casual":

@@ -17,6 +17,7 @@ var zara = require('./routes/zaraLoaderRoutes');
 var users = require('./routes/userRoutes');
 var dressing = require('./routes/dressingRoutes');
 var auth = require('./routes/authRoutes');
+var outfits = require('./routes/outfitsRoutes');
 
 
 var app = express();
@@ -44,6 +45,7 @@ app.use('/zara', zara);
 app.use('/oauth/token', oauth2.token);
 app.use('/dressing', dressing);
 app.use('/auth', auth);
+app.use('/outfits', outfits);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next){
