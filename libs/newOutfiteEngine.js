@@ -1,21 +1,11 @@
 var rootPath = process.cwd();
 
-var data = require(rootPath + '/db/data');	
+var data = require(rootPath + '/db/data');
 
 exports.calculateOutfits = function (style, sex, clothes, types){
     console.log("New engine");
-	return calculateOutfits(style, sex, clothes, types);
+	return calculateOutfits(style, sex, clothes);
 }
-
-
-//weather: { code: "30", date: "", day: "", high: "", low:"", text: "" }
-// return array of type
-function getClotheTypeDependingWeather(weather){
-    //weather : value === 1 ? "sun" : value === 2 ? "cloud" : value === 3 ? "rain" : value === 4 ? "wind" : value === 5 ? "snow"
-    var weatherGroup = data.getWeatherGroup(weather.code);
-    
-}
-
 
 function getMatrixForStyle(style, sex){
     switch(style.toLowerCase()){
@@ -42,12 +32,13 @@ function getMatrixForStyle(style, sex){
 	   }
 }
 
-// arrTypeClothes : [ArrayOfClothesByType]
-function calculateOutfits(style, sex, clothes, types){
-    var all = clothes.filter(function(x){return (types.indexOf(x.clothe_type) > -1)}); 
+// clothes : [ArrayOfClothes]
+function calculateOutfits(style, sex, clothes){
+    //var all = clothes.filter(function(x){return (types.indexOf(x.clothe_type) > -1)}); 
+    var combine = cartesian(clothes);
     
-    console.log(all.length);
-    var combine = k_combinations(all, types.length);
+    console.log("Combination : " + combine.length);
+    console.log("Number Elem by comb : " + combine[0].length);
     //Pour chaque combinason, calcul score betwean each elem
     var maxScore = 0;
     var outfitsResult = [];
@@ -60,86 +51,57 @@ function calculateOutfits(style, sex, clothes, types){
          if (globalScore > maxScore)
              maxScore = globalScore;
     }
-    console.log(maxScore);
-    console.log(outfitsResult.length);
+    console.log("Max Score " + maxScore);
+    console.log("Nbr outfits " + outfitsResult.length);
     return outfitsResult;
 }
 
-function scoreRecursif(style, sex, outfits, combineType){
+function scoreRecursif(style, sex, outfit){
     var score = 0, k = 0;
     //console.log(outfits[0].clothe_id + " " + outfits[1].clothe_id);
-    for (var i = 0; i < outfits.length; i++){
-        for (var t = 0; t < outfits.length; t++){
+    for (var i = 0; i < outfit.length; i++){
+        for (var t = 0; t < outfit.length; t++){
             if (t > i){
-                var temp = scoring2Elements(style, sex, outfits[i], outfits[t]);
+                var temp = scoring2Elements(style, sex, outfit[i], outfit[t]);
                 score += temp;
                 k++;
-                //console.log(outfits[i].clothe_type + " " + outfits[t].clothe_type + " " + temp);
+                //console.log(outfit[i].clothe_type + " " + outfit[t].clothe_type + " " + temp);
             }
         }
     }
     return (score/k);
 }
 
-function k_combinations(set, k) {
-	var i, j, combs, head, tailcombs;
-	
-	if (k > set.length || k <= 0) {
-		return [];
-	}
-	
-	if (k == set.length) {
-		return [set];
-	}
-	
-	if (k == 1) {
-		combs = [];
-		for (i = 0; i < set.length; i++) {
-			combs.push([set[i]]);
-		}
-		return combs;
-	}
-	
-	// Assert {1 < k < set.length}
-	combs = [];
-	for (i = 0; i < set.length - k + 1; i++) {
-		head = set.slice(i, i+1);
-		tailcombs = k_combinations(set.slice(i + 1), k - 1);
-		for (j = 0; j < tailcombs.length; j++) {
-            var d = head.concat(tailcombs[j])
-            if (isDifferentType(d))
-                combs.push(d);
-		}
-	}
-	return combs;
-}
-
-function isDifferentType(head){
-    
-    for (var i = 0; i < head.length - 1; i++){
-       for (var j = 0; j < head.length; j++){
-        if (i != j && head[i].clothe_type === head[j].clothe_type){
-            return false;
+//Array with all possible combinations
+function cartesian(arrayList) {
+    var r = [], arg = arrayList, max = arg.length-1;
+    function helper(arr, i) {
+        for (var j=0, l=arg[i].length; j<l; j++) {
+            var a = arr.slice(0); // clone arr
+            a.push(arg[i][j]);
+            if (i==max)
+                r.push(a);
+            else
+                helper(a, i+1);
         }
-       }
     }
-    return true;
+    helper([], 0);
+    return r;
 }
-
 
 function scoring2Elements(style, sex, elem1, elem2) {
     var ptsColor = colorMatching(elem1, elem2);
     var ptsStyle = styleMatching(style, sex, elem1, elem2);
     var ptsPattern = patternMatching(elem1, elem2);
 
-    return ((ptsColor + (ptsStyle*3) + ptsPattern)/6);
+    return ((ptsColor + (ptsStyle*2) + ptsPattern)/4);
 }
 
 // Return score for pattern
 function patternMatching(elem1, elem2){
 	var x = getIndexPatternMatrix(0, elem1.clothe_isUnis ? "plain" : elem1.clothe_pattern); 
 	var y = getIndexPatternMatrix(1, elem2.clothe_isUnis ? "plain" : elem2.clothe_pattern);
-	return data.patternMatching[x][y];
+	return parseInt(data.patternMatching[x][y]);
 }
 
 // Return score for style
@@ -161,7 +123,7 @@ function styleMatching(style, sex, elem1, elem2){
 	
 	if (x > -1 && y > -1){
         var matrixStyleName = getMatrixForStyle(style, sex);
-		return data[matrixStyleName][x][y];
+		return parseInt(data[matrixStyleName][x][y]);
     }
 	else
 		return 0;
@@ -172,7 +134,7 @@ function colorMatching(elem1, elem2){
 	var x = getIndexColorsMatrix(0, elem1.clothe_colors); 
 	var y = getIndexColorsMatrix(1, elem2.clothe_colors);
 	if (x > -1 && y > -1 )
-		return data.colorsMatching[x][y];
+		return parseInt(data.colorsMatching[x][y]);
 	else 
 		return 0;
 }
