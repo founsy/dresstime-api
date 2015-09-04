@@ -9,6 +9,8 @@ var db = require(rootPath + '/db/databases');
 
 var outfiteCalculator = require(rootPath + '/libs/outfiteEngine');
 var newCalculator = require(rootPath + '/libs/newOutfiteEngine');
+var contextEngine = require(rootPath + '/libs/rulesEngine');
+
 var zaraPartner = require(rootPath + '/libs/zaraPartner');
 var mongodb = require(rootPath + '/db/mongodb.js');
 var data = require(rootPath + '/db/data');
@@ -58,6 +60,10 @@ router.post('/outfitsLoading', passport.authenticate('bearer', { session: false 
  	});
 });
 
+router.post('/outfitsLoading', passport.authenticate('bearer', { session: false }) , function(req, res) {
+
+});
+
 router.get('/outfits', passport.authenticate('bearer', { session: false }) , function(req, res) {
 	var query = require('url').parse(req.url,true).query;
 	var options = {limit: 10, skip: 10};
@@ -91,7 +97,7 @@ router.post('/outfits', passport.authenticate('bearer', { session: false }) , fu
 		console.log(value);
 		mongodb.getOutfitsCollection(style, options, function(results){
 			console.log(results.length);
-			res.send({ outfits : results, weather : value === 1 ? "sun" : value === 2 ? "cloud" : value === 3 ? "rain" : value === 4 ? "wind" : value === 5 ? "sun" : "bad code"});
+			res.send({ outfits : results, weather : value === 1 ? "sun" : value === 2 ? "cloud" : value === 3 ? "rain" : value === 4 ? "wind" : value === 5 ? "snow" : "bad code"});
 		});
 	}
 });

@@ -2,9 +2,22 @@ var rootPath = process.cwd();
 
 var data = require(rootPath + '/db/data');
 
-exports.calculateOutfits = function (style, sex, clothes, types){
+exports.calculateOutfits = function (style, sex, clothes, maxScore){
     console.log("New engine");
-	return calculateOutfits(style, sex, clothes);
+    maxScore = typeof maxScore !== 'undefined' ? maxScore : 60;
+    
+	return calculateOutfits(style, sex, clothes, maxScore);
+}
+
+exports.getOutfit = function(style, sex, clothes, maxScore){
+    var combine = cartesian(clothes);
+    for (var nbrComb = 0; nbrComb < combine.length; nbrComb++){  
+        var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
+        //console.log("----------" + globalScore + "------------");
+         if (globalScore > maxScore){
+            return {outfit : combine[nbrComb], matchingRate: globalScore};
+         }
+    }
 }
 
 function getMatrixForStyle(style, sex){
@@ -33,7 +46,7 @@ function getMatrixForStyle(style, sex){
 }
 
 // clothes : [ArrayOfClothes]
-function calculateOutfits(style, sex, clothes){
+function calculateOutfits(style, sex, clothes, maxScore){
     //var all = clothes.filter(function(x){return (types.indexOf(x.clothe_type) > -1)}); 
     var combine = cartesian(clothes);
     
@@ -45,7 +58,7 @@ function calculateOutfits(style, sex, clothes){
      for (var nbrComb = 0; nbrComb < combine.length; nbrComb++){  
         var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
         //console.log("----------" + globalScore + "------------");
-         if (globalScore > 60){
+         if (globalScore > maxScore){
             outfitsResult.push({outfit : combine[nbrComb], matchingRate: globalScore});
          }
          if (globalScore > maxScore)

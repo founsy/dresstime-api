@@ -37,6 +37,20 @@ exports.getRecords = function(colors, callback) {
   });
 };
 
+exports.getClothe = function(type, subtype, cut, color, pattern, sex, callback){
+    var sql = "SELECT * FROM clothes_tbl WHERE clothe_type=? AND clothe_subtype=? AND clothe_colors=? AND clothe_pattern=? AND clothe_cut=? AND clothe_sex=? LIMIT 5";
+    // get a connection from the pool
+    pool.getConnection(function(err, connection) {
+        if(err) { console.log(err); callback(true); return; }
+        // make the query
+        connection.query(sql, [type, subtype, color, pattern, cut, sex], function(err, results) {
+            connection.release();
+        if(err) { console.log(err); callback(true); return; }
+        callback(false, results);
+    });
+  });
+};
+
 exports.getColors = function(callback) {
   var sql = "SELECT clothe_colors, clothe_image FROM clothes_tbl GROUP BY clothe_colors";
   // get a connection from the pool

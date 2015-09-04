@@ -433,3 +433,13 @@ exports.getWeatherGroup = function(code){
 	else
 		return -1;
 };
+
+//Dressing by Style
+exports.dressingMenCasual = [               {"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"","clothe_colors":"Black","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"plain","clothe_type":"top","clothe_subtype":"tshirt"},
+ {"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"","clothe_colors":"White","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"plain","clothe_type":"top","clothe_subtype":"tshirt"},
+{"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"","clothe_colors":"Blue","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"Hstripe","clothe_type":"top","clothe_subtype":"tshirt"},
+{"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"","clothe_colors":"White","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"plain","clothe_type":"top","clothe_subtype":"shirt"}, 
+{"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"","clothe_colors":"Dark blue","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"check","clothe_type":"top","clothe_subtype":"shirt"}, {"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"","clothe_colors":"White","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"plain","clothe_type":"maille","clothe_subtype":"sweater"},   
+{"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"fin","clothe_colors":"Navy blue","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"plain","clothe_type":"maille","clothe_subtype":"jumper"}, {"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"","clothe_colors":"Grey","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"plain","clothe_type":"pants","clothe_subtype":"bermuda"},
+ {"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"casual","clothe_colors":"Anthracite Grey","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"plain","clothe_type":"pants","clothe_subtype":"jean"},       {"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"suit","clothe_colors":"Black","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"plain","clothe_type":"pants","clothe_subtype":"trousers"}, {"clothe_name":"","clothe_partnerid":-1,"clothe_cut":"","clothe_colors":"Black","clothe_partnerName":"","clothe_isUnis":1,"clothe_id":"","clothe_pattern":"plain","clothe_type":"pants","clothe_subtype":"chino"},
+];
