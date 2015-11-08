@@ -5,10 +5,10 @@ var passport = require('passport');
 
 var rootPath = process.cwd();
 
-var outfiteCalculator = require(rootPath + '/libs/outfiteEngine');
-var newCalculator = require(rootPath + '/libs/newOutfiteEngine');
+var styleEngine = require(rootPath + '/libs/styleEngine');
 var contextEngine = require(rootPath + '/libs/rulesEngine');
 
+var Clothe = require(rootPath + '/models/clothe');
 
 function check1ArrayIsEmpty(arrayOfCombination){
     for (var j = 0; j<arrayOfCombination.length; j++){
@@ -16,7 +16,6 @@ function check1ArrayIsEmpty(arrayOfCombination){
     }
     return false;
 }
-
 
 // Return a list of 4 outfits as different as possible
 function randomOutfits(outfits, numberOfCombination){
@@ -43,43 +42,68 @@ function randomOutfits(outfits, numberOfCombination){
     }
 }
 
-function bestOutfits(outfits){
+function bestOutfits(outfits, style){
     var best1 = null, best2 = null;
     
     for (var i=0; i < outfits.length; i++){
         if (best1 === null || best1.matchingRate < outfits[i].matchingRate){
             best1 = outfits[i];
         
-        } else if (best2 === null || (best1.matchingRate > outfits[i].matchingRate && best2.matchingRate < outfits[i].matchingRate)) {
+        } 
+        if (best2 === null || (best1.matchingRate > outfits[i].matchingRate && best2.matchingRate < outfits[i].matchingRate)) {
             best2 = outfits[i];
         } 
     }
-    return [best1, best2];
+    
+    if (best1 === null && best2 !== null) {
+        best2["style"] = style
+        return [best2];
+    } if (best1 !== null && best2 === null) {
+        best1["style"] = style
+        return [best1];
+    } else {
+        best1["style"] = style
+        best2["style"] = style
+        return [best1, best2];
+    }
 }
 
-router.post('/byStyle', passport.authenticate('bearer', { session: false }) , function(req, res) {
-    if (typeof req.body !== 'undefined' && typeof req.body.style !== 'undefined' && typeof req.body.dressing !== 'undefined' && typeof req.body.weather !== 'undefined') {
+function updateClothesColor(clothes){
+    for (var i = 0; i < clothes.length; i++){
+        console.log(clothes[i].clothe_colors);
+        Clothe.update({clothe_id: clothes[i].clothe_id}, {$set: {'clothe_litteralColor': clothes[i].clothe_colors}}, {upsert: true}, function(err){console.log(err);});
+    }
+
+}
+
+
+router.post('/', passport.authenticate('bearer', { session: false }) , function(req, res) {
+    if (typeof req.body !== 'undefined' && typeof req.body.styles !== 'undefined' && typeof req.body.dressing !== 'undefined' && typeof req.body.weather !== 'undefined') {
         var clothes = req.body.dressing;
-		var style = req.body.style;
+		var styles = req.body.styles;
 		var sex = req.body.sex;
         var weather = req.body.weather;
+        updateClothesColor(clothes);
         
-        //Get Rules from Context (Weather, Temperature)
-        var rules = contextEngine.getRules(weather.code, weather.low, weather.high, style);
-        //Get an array of array of prefiltered list of clothe depending of rules
-        var arrayOfCombinations = contextEngine.execute(clothes, rules);
-        
-        console.log("----------------------------------- " + arrayOfCombinations.length);
-		var outfits = [], numberOfCombination = 0;
-        
-        //For each combination calculate outfits
-        for (var i = 0; i < arrayOfCombinations.length; i++){
-            console.log("Calculate Outfits " + arrayOfCombinations[i].length + " " + style);
-            //Check if all list of clothes are not empty.
-            if (!check1ArrayIsEmpty(arrayOfCombinations[i])) {
-                var temp = newCalculator.calculateOutfits(style, sex, arrayOfCombinations[i])
-                outfits = outfits.concat(bestOutfits(temp));
-                numberOfCombination++;
+        for (var j=0; j < styles.length; j++){
+            //Get Rules from Context (Weather, Temperature)
+            var rules = contextEngine.getRules(weather.code, weather.low, weather.high, styles[i]);
+            //Get an array of array of prefiltered list of clothe depending of rules
+            var arrayOfCombinations = contextEngine.execute(clothes, rules);
+
+            console.log("----------------------------------- " + arrayOfCombinations.length);
+            var outfits = [], numberOfCombination = 0;
+
+            //For each combination calculate outfits
+            for (var i = 0; i < arrayOfCombinations.length; i++){
+                console.log("Calculate Outfits " + arrayOfCombinations[i].length + " " + styles[i]);
+                //Check if all list of clothes are not empty.
+                if (!check1ArrayIsEmpty(arrayOfCombinations[i])) {
+                    var temp = styleEngine.calculateOutfits(styles[i], sex, arrayOfCombinations[i])
+                    console.log("Number Outfits " + temp.length + " " + styles[i]);
+                    outfits = outfits.concat(bestOutfits(temp, styles[i]));
+                    numberOfCombination++;
+                }
             }
         }
         console.log("--->Nbr results : " + outfits.length);
@@ -104,7 +128,7 @@ router.post('/today', passport.authenticate('bearer', { session: false }) , func
             var arrayOfCombinations = contextEngine.execute(clothes, rules);
             for (var j = 0; j < arrayOfCombinations.length; j++){
                 if (!check1ArrayIsEmpty(arrayOfCombinations[j])) {
-                    var temp = newCalculator.calculateOutfits(styles[i], sex, arrayOfCombinations[j]);
+                    var temp = styleEngine.calculateOutfits(styles[i], sex, arrayOfCombinations[j]);
                     if (temp.length > 0){
                         outfits.push({style: styles[i], outfit: temp[0].outfit, matchingRate: temp[0].matchingRate});
                         break;

@@ -34,8 +34,15 @@ var mongoose = require('mongoose'),
         clothe_colors: {
 			type: String
 		},
+        clothe_litteralColor: {
+            type: String,
+            default: ""
+        },
         clothe_image: {
             type: String
+        },
+        clothe_favorite: {
+            type: Boolean
         },
         clothe_userid: {
             type: mongoose.Schema.Types.ObjectId,

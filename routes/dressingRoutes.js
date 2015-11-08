@@ -91,7 +91,7 @@ router.get('/clothesIds/', passport.authenticate('bearer', { session: false }), 
                 clothesId.push({ id : clothes[item].clothe_id});
             }
             console.log(JSON.stringify(clothesId));
-            res.send({list: clothesId}); 
+            res.send(clothesId); 
         }
     });
 });

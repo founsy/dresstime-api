@@ -63,8 +63,9 @@ passport.use(new BearerStrategy(
             if (!token) { 
             	return done(null, false); 
             }
-
-            if( Math.round((Date.now()-token.created)/1000) > config.get('security:tokenLife') ) {
+            
+            //TODO - Token valide forever
+           /* if( Math.round((Date.now()-token.created)/1000) > config.get('security:tokenLife') ) {
 
                 AccessToken.remove({ token: accessToken }, function (err) {
                     if (err) {
@@ -73,7 +74,7 @@ passport.use(new BearerStrategy(
                 });
 
                 return done(null, false, { message: 'Token expired' });
-            }
+            } */
 
             User.findById(token.userId, function(err, user) {
             

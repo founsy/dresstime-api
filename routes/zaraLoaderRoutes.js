@@ -8,7 +8,7 @@ var rootPath = process.cwd();
 var db = require(rootPath + '/db/databases');
 
 var outfiteCalculator = require(rootPath + '/libs/outfiteEngine');
-var newCalculator = require(rootPath + '/libs/newOutfiteEngine');
+var newCalculator = require(rootPath + '/libs/styleEngine');
 var contextEngine = require(rootPath + '/libs/rulesEngine');
 
 var zaraPartner = require(rootPath + '/libs/zaraPartner');

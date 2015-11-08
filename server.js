@@ -12,7 +12,6 @@ var config = require('./config');
 var oauth2 = require('./auth/oauth2');
 
 var api = require('./routes/api');
-var routes = require('./routes/routes');
 var zara = require('./routes/zaraLoaderRoutes');
 var users = require('./routes/userRoutes');
 var dressing = require('./routes/dressingRoutes');

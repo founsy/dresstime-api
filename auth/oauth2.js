@@ -52,7 +52,8 @@ var generateTokens = function (data, done) {
     		return done(err); 
     	}
     	done(null, tokenValue, refreshTokenValue, { 
-    		'expires_in': config.get('security:tokenLife') 
+    		'expires_in': config.get('security:tokenLife'),
+            'user': data.user
     	});
     });
 };
@@ -60,7 +61,7 @@ var generateTokens = function (data, done) {
 // Exchange username & password for access token.
 aserver.exchange(oauth2orize.exchange.password(function(client, username, password, scope, done) {
 	
-	User.findOne({ username: username }, function(err, user) {
+	User.findOne({  $or:[ {'username':username}, {'email': username}, {'displayName': username} ] }, function(err, user) {
 		
 		if (err) { 
 			return done(err); 
@@ -72,7 +73,8 @@ aserver.exchange(oauth2orize.exchange.password(function(client, username, passwo
 
 		var model = { 
 			userId: user.userId, 
-			clientId: client.clientId 
+			clientId: client.clientId,
+            user: user.getToSend()
 		};
 
 		generateTokens(model, done);

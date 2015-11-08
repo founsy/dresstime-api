@@ -3,9 +3,7 @@ var rootPath = process.cwd();
 var data = require(rootPath + '/db/data');
 
 exports.calculateOutfits = function (style, sex, clothes, maxScore){
-    console.log("New engine");
     maxScore = typeof maxScore !== 'undefined' ? maxScore : 60;
-    
 	return calculateOutfits(style, sex, clothes, maxScore);
 }
 
@@ -47,13 +45,9 @@ function getMatrixForStyle(style, sex){
 
 // clothes : [ArrayOfClothes]
 function calculateOutfits(style, sex, clothes, maxScore){
-    //var all = clothes.filter(function(x){return (types.indexOf(x.clothe_type) > -1)}); 
     var combine = cartesian(clothes);
-    
-    console.log("Combination : " + combine.length);
-    console.log("Number Elem by comb : " + combine[0].length);
     //Pour chaque combinason, calcul score betwean each elem
-    var maxScore = 0;
+    var maxValue = 0;
     var outfitsResult = [];
      for (var nbrComb = 0; nbrComb < combine.length; nbrComb++){  
         var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
@@ -61,11 +55,9 @@ function calculateOutfits(style, sex, clothes, maxScore){
          if (globalScore > maxScore){
             outfitsResult.push({outfit : combine[nbrComb], matchingRate: globalScore});
          }
-         if (globalScore > maxScore)
-             maxScore = globalScore;
+         if (globalScore > maxValue)
+             maxValue = globalScore;
     }
-    console.log("Max Score " + maxScore);
-    console.log("Nbr outfits " + outfitsResult.length);
     return outfitsResult;
 }
 
@@ -114,7 +106,7 @@ function scoring2Elements(style, sex, elem1, elem2) {
 function patternMatching(elem1, elem2){
 	var x = getIndexPatternMatrix(0, elem1.clothe_isUnis ? "plain" : elem1.clothe_pattern); 
 	var y = getIndexPatternMatrix(1, elem2.clothe_isUnis ? "plain" : elem2.clothe_pattern);
-	return parseInt(data.patternMatching[x][y]);
+    return parseInt(data.patternMatching[x][y]);
 }
 
 // Return score for style

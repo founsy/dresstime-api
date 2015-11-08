@@ -4,11 +4,43 @@ var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
 
 	User = new Schema({
-		username: {
+		email: {
 			type: String,
 			unique: true,
 			required: true
 		},
+        username: {
+			type: String,
+			unique: true,
+			required: true
+		},
+        displayName: {
+			type: String,
+			unique: true
+		},
+        atWorkStyle: {
+            type: String,
+			required: true
+        },
+        onPartyStyle: {
+            type: String,
+			required: true
+        },
+        relaxStyle: {
+            type: String,
+			required: true
+        },
+        tempUnit: {
+            type: String,
+            default: "C"
+        },
+        gender: {
+            type: String,
+            default: "M"
+        },
+        picture: {
+            type: String
+        },
 		hashedPassword: {
 			type: String,
 			required: true
@@ -45,6 +77,20 @@ User.virtual('password')
 
 User.methods.checkPassword = function(password) {
 	return this.encryptPassword(password) === this.hashedPassword;
+};
+
+User.methods.getToSend = function(){
+    return {
+        email : this.email,
+        username: this.username,
+        displayName: this.displayName,
+        atWorkStyle: this.atWorkStyle,
+        onPartyStyle: this.onPartyStyle,
+        relaxStyle: this.relaxStyle,
+        tempUnit: this.tempUnit,
+        gender: this.gender,
+        picture: this.picture
+    }
 };
 
 module.exports = mongoose.model('User', User);

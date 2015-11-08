@@ -1,21 +1,66 @@
 var rootPath = process.cwd();
 
 var db = require(rootPath + '/db/databases');
+var styleEngine = require(rootPath + '/libs/styleEngine');
 
 //@param : outfits list of generic clothes
 //@return : list of outfits of brand clothes
-exports.execute = function(outfitsList) {
-    for (var i=0; i < outfitsList.length; i++){
-        outfitsList[i].brandClothe = chooseClothe(outfitsList[i]);
-        /*var outfit = outfitsList[i];
-        console.log(outfit);
-        for (var j =0; j < outfit.length; j++){
-            outfit[j].brandClothe = chooseClothe(outfit[j]);
-        } */
+exports.execute = function(brandClothes, dressingClothes) {
+    /*  ( top -> pants)
+        ( maille -> pants)
+        ( pants -> top)
+        ( dress -> maille)
+    */
+    for (var i = 0; i < dressingClothes.length; i++){
+        dressingClothes[i].clothe_image = "";
+        dressingClothes[i].clothe_colors = dressingClothes[i].clothe_litteralColor;
+        
     }
-    return outfitsList;
+    var dressingPants = dressingClothes.filter(function(el) { return el.clothe_type === "pants"; });
+    var dressingTops = dressingClothes.filter(function(el) { return el.clothe_type === "top"; });
+    var dressingMaille = dressingClothes.filter(function(el) { return el.clothe_type === "maille"; });
+
+    
+    var result = [];
+    for (var i = 0; i < brandClothes.length; i++){
+        var clothe = brandClothes[i];
+        var temp = [];
+        if (clothe.clothe_type === "top"){
+            var combination = [];
+            combination.push(dressingPants);
+            combination.push([clothe]);
+            temp = styleEngine.calculateOutfits("casual", "M", combination, 70);
+
+        } else if (clothe.clothe_type === "maille") {
+             var combination = [];
+            combination.push(dressingPants);
+            combination.push([clothe]);
+            temp = styleEngine.calculateOutfits("casual", "M", combination, 70)
+        } else if (clothe.clothe_type === "pants") {
+            var combination = [];
+            combination.push(dressingTops);
+            combination.push([clothe]);
+            temp = styleEngine.calculateOutfits("casual", "M", combination, 70)
+        }
+        var obj = { brandClothe : clothe};
+        obj["clothes"] = [];
+        for (var j = 0; j < temp.length; j++){
+            for (var k = 0; k < temp[j].outfit.length; k++){
+                if (temp[j].outfit[k].clothe_partnerName === ""){
+                     obj["clothes"].push({ clothe :  temp[j].outfit[k], matchingRate: temp[j].matchingRate})   
+                }
+            }   
+        }
+        if ( obj["clothes"].length > 0)
+            result.push(obj);
+    }
+    return result;
 };
 
+function addBrandClothe(association) {
+
+
+};
 
 //@param : generic clothe
 //@return : list of brand clothe ordered by ranking

@@ -60,31 +60,32 @@ function getMatrixRules(style, weatherGroup, tempEval){
 //4	wind
 //5	snow
 function getWeatherGroup(code){
-	//1 sun   [31, 32, 33, 34, 36]
-	//2	cloud [20, 21, 22, 26, 27, 28, 29, 30, 44]
-	//3	rain  [1, 2, 3, 4, 6, 9, 11, 12, 17, 35, 37, 38, 39, 40, 45, 47]
-	//4	wind  [0, 19, 23, 24]
-	//5	snow  [5, 7, 8, 10, 13, 14, 15, 16, 18, 41, 42, 43, 46]	
-	var sun = [31, 32, 33, 34, 36];
-	var cloud = [20, 21, 22, 26, 27, 28, 29, 30, 44];
-	var rain = [1, 2, 3, 4, 6, 9, 11, 12, 17, 35, 37, 38, 39, 40, 45, 47];
-	var wind = [0, 19, 23, 24];
-	var snow = [5, 7, 8, 10, 13, 14, 15, 16, 18, 41, 42, 43, 46];
-	var intCode = parseInt(code);
-	console.log(cloud.indexOf(intCode));
-	if (sun.indexOf(intCode) > -1)
-		return 1;
-	else if (cloud.indexOf(intCode) > -1)
-		return 2;
-	else if (rain.indexOf(intCode) > -1)
-		return 3;
-	else if (wind.indexOf(intCode) > -1)
-		return 4;
-	else if (snow.indexOf(intCode) > -1)
-		return 5;
-	else
-		return -1;
-};
+    //2xx Thunderstorm
+    //3xx Drizzle
+    //5xx Rain
+    //6xx Snow
+    //7xx Atmosphere
+    //800 sunny
+    //80x Clouds
+    //9xx Extreme
+    if (code >= 200 && code < 300){
+        return 5
+    } else if (code >= 300 && code < 400){
+        return 3
+    } else if (code >= 500 && code < 600){
+        return 3
+    } else if (code >= 600 && code < 700){
+        return 5
+    } else if (code >= 700 && code < 800){
+        return 2
+    } else if (code == 800 ){
+        return 1
+    } else if (code >= 800 && code < 900){
+        return 2
+    } else if (code >= 900){
+        return 4
+    }
+}
 
 // 1 - very cold (< 5)
 // 2 - cold (<10)
