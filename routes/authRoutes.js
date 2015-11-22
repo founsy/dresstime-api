@@ -13,7 +13,15 @@ router.post('/registration', function(req, res) {
     console.log(req.body.user);
      var user = new User({ 
         username: req.body.user.username, 
-        password: req.body.user.password 
+        password: req.body.user.password,
+        email: req.body.user.email,
+        displayName: "",
+        atWorkStyle: req.body.user.atWorkStyle,
+        onPartyStyle: req.body.user.onPartyStyle,
+        relaxStyle: req.body.user.relaxStyle,
+        tempUnit: req.body.user.tempUnit,
+        gender: req.body.user.gender,
+        picture: ""
     });
     
     user.save(function(err, user) {

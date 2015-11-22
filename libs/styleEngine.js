@@ -18,6 +18,23 @@ exports.getOutfit = function(style, sex, clothes, maxScore){
     }
 }
 
+function removeClotheAlreadyUse(outfit, combine, numberClotheByType){
+    combine = combine.filter(function(el){
+        for (var i = 2; i < el.length; i++){
+            for (var j = 2; j < outfit.length; j++){
+                if (el[i - 2].clothe_id === outfit[j - 2].clothe_id || el[i - 1].clothe_id === outfit[j -1 ].clothe_id || el[i].clothe_id === outfit[j].clothe_id ){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            
+        }
+    });
+    return combine;
+}
+
+
 function getMatrixForStyle(style, sex){
     switch(style.toLowerCase()){
 		case "casual":
@@ -46,18 +63,38 @@ function getMatrixForStyle(style, sex){
 // clothes : [ArrayOfClothes]
 function calculateOutfits(style, sex, clothes, maxScore){
     var combine = cartesian(clothes);
+    var numberOfClothesByType = {};
+    for (var i = 0; i < clothes.length; i++){
+        if (clothes[i].length > 0){
+            numberOfClothesByType[clothes[i][0].clothe_type] = clothes[i].length;        
+        }
+    }
+
     //Pour chaque combinason, calcul score betwean each elem
     var maxValue = 0;
     var outfitsResult = [];
-     for (var nbrComb = 0; nbrComb < combine.length; nbrComb++){  
+    
+   // var nbrComb = combine.length;
+    for (var nbrComb = combine.length - 1;  nbrComb >= 0; nbrComb--) {
         var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
-        //console.log("----------" + globalScore + "------------");
-         if (globalScore > maxScore){
+        if (globalScore >= maxScore){
             outfitsResult.push({outfit : combine[nbrComb], matchingRate: globalScore});
+            combine = removeClotheAlreadyUse(combine[nbrComb], combine, numberOfClothesByType);
+            nbrComb = combine.length
+         }
+    }
+    /*for (var nbrComb = combine.length - 1; nbrComb >= 0; nbrComb--){  
+        console.log(combine.length);
+        var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
+        console.log("----------" + globalScore + "------------");
+         if (globalScore >= maxScore){
+            outfitsResult.push({outfit : combine[nbrComb], matchingRate: globalScore});
+            combine = removeClotheAlreadyUse(combine[nbrComb], combine, numberOfClothesByType);
+            console.log(combine.length);
          }
          if (globalScore > maxValue)
              maxValue = globalScore;
-    }
+    }*/
     return outfitsResult;
 }
 
@@ -70,7 +107,6 @@ function scoreRecursif(style, sex, outfit){
                 var temp = scoring2Elements(style, sex, outfit[i], outfit[t]);
                 score += temp;
                 k++;
-                //console.log(outfit[i].clothe_type + " " + outfit[t].clothe_type + " " + temp);
             }
         }
     }

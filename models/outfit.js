@@ -1,13 +1,7 @@
 var mongoose = require('mongoose'),
-
 	Schema = mongoose.Schema,
 
-	Dressing = new Schema({
-        id: {
-			type: String,
-			unique: true,
-			required: true
-		},
+	Outfit = new Schema({
         userid: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
@@ -16,9 +10,15 @@ var mongoose = require('mongoose'),
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Clothe'
         }],
+        style: {
+            type: String
+        },
+        matchingRate: {
+            type: Number
+        },
 		updated: {
 			type: Date,
 			default: Date.now
 		}
-	});
-module.exports = mongoose.model('Dressing', Dressing);
+    });
+module.exports = mongoose.model('Outfit', Outfit);

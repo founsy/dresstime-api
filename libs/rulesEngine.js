@@ -80,7 +80,7 @@ function getWeatherGroup(code){
         return 2
     } else if (code == 800 ){
         return 1
-    } else if (code >= 800 && code < 900){
+    } else if (code > 800 && code < 900){
         return 2
     } else if (code >= 900){
         return 4

@@ -7,7 +7,8 @@ var mongoose = require('mongoose'),
 		email: {
 			type: String,
 			unique: true,
-			required: true
+			required: true,
+            default: ""
 		},
         username: {
 			type: String,
@@ -16,7 +17,8 @@ var mongoose = require('mongoose'),
 		},
         displayName: {
 			type: String,
-			unique: true
+			unique: true,
+            default: ""
 		},
         atWorkStyle: {
             type: String,

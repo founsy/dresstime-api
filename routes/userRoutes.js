@@ -36,7 +36,7 @@ router.post('/', passport.authenticate('bearer', { session: false }), function(r
   		});		
 	})
 	.put('/', passport.authenticate('bearer', { session: false }),function(req, res){
-         var query = User.findOne();
+        var query = User.findOne();
         query.where('username', req.user.username);
         query.exec(function (err, user) {
             if (err) { res.send(500, err); }
