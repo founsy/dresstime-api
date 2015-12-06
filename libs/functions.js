@@ -65,6 +65,5 @@ exports.localAuth = function (username, password) {
       deferred.reject(new Error(err));
     }
   });
-
   return deferred.promise;
 }

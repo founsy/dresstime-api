@@ -5,6 +5,7 @@ var express = require('express'),
     passport = require('passport'),
 	mongoDb = require(rootPath + '/db/mongodb'),
     Clothe = require(rootPath + '/models/clothe'),
+    imagesManager = require(rootPath + '/libs/imagesManager'),
     ObjectId = require('mongoose').Types.ObjectId; 
 
 router.get('/clothes/', passport.authenticate('bearer', { session: false }), function(req, res){
@@ -20,22 +21,24 @@ router.get('/clothes/', passport.authenticate('bearer', { session: false }), fun
 router.post('/clothes/', passport.authenticate('bearer', { session: false }), function(req, res){
     var user = req.user;
     var clothe = req.body.dressing[0];
-    var clothe = Clothe({
+    var clotheToSave = Clothe({
         clothe_id : clothe.clothe_id,
         clothe_name: clothe.clothe_name,
         clothe_cut: clothe.clothe_cut,
         clothe_pattern: clothe.clothe_pattern,
         clothe_type: clothe.clothe_type,
         clothe_subtype: clothe.clothe_subtype,
-        clothe_colors: clothe.clothe_colors,
+        clothe_litteralColor: clothe.clothe_colors,
         clothe_partnerid: clothe.clothe_partnerid,
         clothe_partnerName: clothe.clothe_partnerName,
         clothe_isUnis: clothe.clothe_isUnis,
-        clothe_image: clothe.clothe_image,
+        clothe_image: clothe.clothe_id + '.jpg',
         clothe_userid: req.user._id
     });
     
-    clothe.save(function(err){
+    imagesManager.createImage(clothe.clothe_id, clothe.clothe_image);
+    
+    clotheToSave.save(function(err){
         if(err)
            res.send(500, err);
         else
@@ -46,25 +49,38 @@ router.post('/clothes/', passport.authenticate('bearer', { session: false }), fu
 router.put('/clothes/', passport.authenticate('bearer', { session: false }), function(req, res){
     var user = req.user;
     var newClothe = req.body;
-    
-    Clothe.findOneAndUpdate({clothe_id: clothe.clothe_id}, newClothe, {upsert:true}, function(err, doc){
+    console.log(newClothe.clothe_id);
+    Clothe.findOneAndUpdate({clothe_id: newClothe.clothe_id}, newClothe, {upsert:true}, function(err, doc){
         if (err) 
             return res.send(500, { error: err });
-        else
+        else{
+            console.log(doc);
             return res.send("succesfully saved");
+        }
     });
 });
 
 router.get('/clothes/:id', passport.authenticate('bearer', { session: false }), function(req, res){
     var user = req.user;
-    console.log("get clothe by id");  
-    console.log("ID " + req.param('id'));
     Clothe.findOne({clothe_id: req.param('id')}, function(err, clothes){
         console.log(err);
         if(err){
            res.send(500, err);
         } else {
             res.send(clothes);  
+        }
+    });
+});
+
+
+router.get('/clothes/image/:id', passport.authenticate('bearer', { session: false }), function(req, res){
+    var user = req.user;
+    console.log(req.param('id'));
+    Clothe.findOne({clothe_id: req.param('id')}, function(err, clothe){
+        if(err){
+           res.send(500, err);
+        } else {
+            res.send({clothe_id: req.param('id'), clothe_image : imagesManager.readImage(clothe.clothe_image)});  
         }
     });
 });
@@ -76,6 +92,7 @@ router.delete('/clothes/:id', passport.authenticate('bearer', { session: false }
         if (err) 
             return res.send(500, { error: err });
         else
+            imagesManager.removeImage(req.param('id')+".jpg")
             return res.send({ succeeded : true, msg : "succesfully deleted"});
     });
 });

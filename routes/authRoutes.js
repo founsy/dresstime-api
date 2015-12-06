@@ -25,10 +25,10 @@ router.post('/registration', function(req, res) {
     });
     
     user.save(function(err, user) {
-        if(!err) {
-            res.send("New user - %s:%s", user.username, user.password);
-        }else {
+        if(err) {
             res.send(err);
+        }else {
+            res.send(user.getToSend());    
         }
     });
 });

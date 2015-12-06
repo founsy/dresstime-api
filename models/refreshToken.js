@@ -11,7 +11,7 @@ var mongoose = require('mongoose'),
             required: true
         },
         uuid: {
-            type: Stirng,
+            type: String,
             required: false
         },
         token: {

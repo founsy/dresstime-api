@@ -172,8 +172,13 @@ function styleMatching(style, sex, elem1, elem2){
 
 // Return score for color
 function colorMatching(elem1, elem2){
-	var x = getIndexColorsMatrix(0, elem1.clothe_colors); 
-	var y = getIndexColorsMatrix(1, elem2.clothe_colors);
+
+    var color1 = typeof elem1.clothe_litteralColor !== 'undefined' ? elem1.clothe_litteralColor : elem1.clothe_colors
+	var color2 = typeof elem2.clothe_litteralColor !== 'undefined' ? elem2.clothe_litteralColor : elem2.clothe_colors
+        console.log(color1);
+    console.log(color2);
+    var x = getIndexColorsMatrix(0, color1); 
+    var y = getIndexColorsMatrix(1, color2);
 	if (x > -1 && y > -1 )
 		return parseInt(data.colorsMatching[x][y]);
 	else 

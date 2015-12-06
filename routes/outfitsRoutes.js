@@ -145,6 +145,13 @@ function notEnoughOutfit(arrayOfCombinations){
     return result
 }
 
+function rmImages(clothes){
+    for (var i = 0; i < clothes.length; i++){
+        clothes[i].clothe_image = undefined;
+    }
+    return clothes;
+}
+
 router.post('/', passport.authenticate('bearer', { session: false }) , function(req, res) {
     if (typeof req.body !== 'undefined' && typeof req.body.styles !== 'undefined' && typeof req.body.dressing !== 'undefined' && typeof req.body.weather !== 'undefined') {
         var clothes = req.body.dressing;
@@ -194,6 +201,7 @@ router.post('/v2/', passport.authenticate('bearer', { session: false }) , functi
             if(err)
                 res.send(500, err);
             else {
+                clothes = rmImages(clothes);
                 console.log("--->   v2 : ");
                 var clothes = clothes;
                 console.log(req.body.styles);
@@ -203,14 +211,22 @@ router.post('/v2/', passport.authenticate('bearer', { session: false }) , functi
                 
                 var outfits = [];
                 for (var j=0; j < styles.length; j++){
-                    var rules = [ 
-                        { "clothe_type" : ["maille", "top", "pants"] },
-                        { "clothe_type" : ["maille", "dress"] }
-                   ];
+                     var rules = ""
+                    if (req.user.gender == "M"){
+                        rules = [ 
+                            { "clothe_type" : ["maille", "top", "pants"] }
+                        ];
+                    } else {
+                        rules = [ 
+                            { "clothe_type" : ["maille", "top", "pants"] },
+                            { "clothe_type" : ["maille", "dress"] }
+                        ];
+                    }
 
                     //Get an array of array of prefiltered list of clothe depending of rules
                     var arrayOfCombinations = contextEngine.execute(clothes, rules);
-
+                    console.log("----------------------------------- " + arrayOfCombinations.length);
+                    console.log(JSON.stringify(arrayOfCombinations));
                     //For each combination calculate outfits
                     for (var i = 0; i < arrayOfCombinations.length; i++){
                         //Check if all list of clothes are not empty.

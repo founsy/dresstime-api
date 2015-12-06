@@ -12,7 +12,7 @@ var config = require('./config');
 var oauth2 = require('./auth/oauth2');
 
 var api = require('./routes/api');
-var zara = require('./routes/zaraLoaderRoutes');
+//var zara = require('./routes/zaraLoaderRoutes');
 var users = require('./routes/userRoutes');
 var dressing = require('./routes/dressingRoutes');
 var auth = require('./routes/authRoutes');
@@ -40,7 +40,7 @@ app.use(passport.initialize());
 app.use('/', api);
 app.use('/api', api);
 app.use('/users', users);
-app.use('/zara', zara);
+//app.use('/zara', zara);
 app.use('/oauth/token', oauth2.token);
 app.use('/dressing', dressing);
 app.use('/auth', auth);

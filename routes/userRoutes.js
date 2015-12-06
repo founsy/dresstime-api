@@ -4,7 +4,10 @@ var express = require('express'),
 	router = express.Router(),
 	mongoDb = require(rootPath + '/db/mongodb'),
     passport = require('passport'),
-    User = require(rootPath + '/models/user');
+    User = require(rootPath + '/models/user'),
+    Clothe = require(rootPath + '/models/clothe'),
+    imagesManager = require(rootPath + '/libs/imagesManager'),
+    ObjectId = require('mongoose').Types.ObjectId;
 /*
 router.get('/:username', function(req, res){
     var query = User.findOne();
@@ -24,6 +27,21 @@ router.get('/', passport.authenticate('bearer', { session: false }) , function(r
         res.send(user.getToSend());
     });
 });
+
+router.put('/updateImages', passport.authenticate('bearer', { session: false }) , function(req, res){
+    Clothe.find({}, function(err, clothes){
+        if(err) {
+           res.send(500, err);
+        } else {
+            for (var i = 0; i < clothes.length; i++){
+                imagesManager.writeImage(clothes[i]);
+            }
+            
+            res.send("Clothes updated : " + clothes.length); 
+        }
+    });
+});
+
 
 
 router.post('/', passport.authenticate('bearer', { session: false }), function(req, res){
