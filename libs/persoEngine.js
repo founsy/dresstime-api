@@ -33,7 +33,7 @@ function clotheAlreadyProposeToday(user){
     //Can suggest pants every 2 days
 }
 
-
+//Historize outfits for user
 exports.outfitHistorize = function(outfits, user){
     for (var i = 0; i < outfits.length; i++){
         var clothes = []

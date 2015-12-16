@@ -253,6 +253,13 @@ router.post('/v2/', passport.authenticate('bearer', { session: false }) , functi
 
 **********************************************************/
 router.post('/OOTD', passport.authenticate('bearer', { session: false }) , function(req, res) {
+    //GET 
+    /*{
+        style = "",
+        clothes = [clothe_id, clothe_id...]
+    }*/
+    var user = req.user;
+    var outfit = req.body;
 });
 
 //Return 1 Outfits by Style

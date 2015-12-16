@@ -14,6 +14,7 @@ var oauth2 = require('./auth/oauth2');
 var api = require('./routes/api');
 //var zara = require('./routes/zaraLoaderRoutes');
 var users = require('./routes/userRoutes');
+var weather = require('./routes/weatherRoutes');
 var dressing = require('./routes/dressingRoutes');
 var auth = require('./routes/authRoutes');
 var outfits = require('./routes/outfitsRoutes');
@@ -46,6 +47,7 @@ app.use('/dressing', dressing);
 app.use('/auth', auth);
 app.use('/outfits', outfits);
 app.use('/brand', brandOutfits);
+app.use('/weather', weather);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next){
