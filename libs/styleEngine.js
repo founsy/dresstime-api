@@ -74,27 +74,25 @@ function calculateOutfits(style, sex, clothes, maxScore){
     var maxValue = 0;
     var outfitsResult = [];
     
-   // var nbrComb = combine.length;
-    for (var nbrComb = combine.length - 1;  nbrComb >= 0; nbrComb--) {
+   
+    /*for (var nbrComb = combine.length - 1;  nbrComb >= 0; nbrComb--) {
         var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
         if (globalScore >= maxScore){
             outfitsResult.push({outfit : combine[nbrComb], matchingRate: globalScore});
             combine = removeClotheAlreadyUse(combine[nbrComb], combine, numberOfClothesByType);
             nbrComb = combine.length
          }
-    }
-    /*for (var nbrComb = combine.length - 1; nbrComb >= 0; nbrComb--){  
-        console.log(combine.length);
-        var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
-        console.log("----------" + globalScore + "------------");
-         if (globalScore >= maxScore){
-            outfitsResult.push({outfit : combine[nbrComb], matchingRate: globalScore});
-            combine = removeClotheAlreadyUse(combine[nbrComb], combine, numberOfClothesByType);
-            console.log(combine.length);
-         }
-         if (globalScore > maxValue)
-             maxValue = globalScore;
     }*/
+    var nbrComb = combine.length;
+    for (var nbrComb = combine.length - 1; nbrComb >= 0; nbrComb--){  
+        var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
+        if (globalScore >= maxScore){
+            outfitsResult.push({outfit : combine[nbrComb], matchingRate: globalScore});
+        }
+        if (globalScore > maxValue)
+            maxValue = globalScore;
+    }
+    console.log("----------- " + maxValue + "-------------");
     return outfitsResult;
 }
 
@@ -135,7 +133,7 @@ function scoring2Elements(style, sex, elem1, elem2) {
     var ptsStyle = styleMatching(style, sex, elem1, elem2);
     var ptsPattern = patternMatching(elem1, elem2);
 
-    return ((ptsColor + (ptsStyle*2) + ptsPattern)/4);
+    return ((ptsColor + (ptsStyle) + ptsPattern)/3);
 }
 
 // Return score for pattern
@@ -175,8 +173,6 @@ function colorMatching(elem1, elem2){
 
     var color1 = typeof elem1.clothe_litteralColor !== 'undefined' ? elem1.clothe_litteralColor : elem1.clothe_colors
 	var color2 = typeof elem2.clothe_litteralColor !== 'undefined' ? elem2.clothe_litteralColor : elem2.clothe_colors
-        console.log(color1);
-    console.log(color2);
     var x = getIndexColorsMatrix(0, color1); 
     var y = getIndexColorsMatrix(1, color2);
 	if (x > -1 && y > -1 )

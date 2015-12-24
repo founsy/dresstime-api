@@ -2,11 +2,15 @@ var express = require('express');
 var router = express.Router();
 var http = require('http');
 var passport = require('passport');
+var async = require('async'),
+    fuzzylogic = require('fuzzylogic');
 
 var rootPath = process.cwd();
 
-var styleEngine = require(rootPath + '/libs/styleEngine');
-var contextEngine = require(rootPath + '/libs/rulesEngine'),
+var styleEngine = require(rootPath + '/libs/styleEngine'),
+    contextEngine = require(rootPath + '/libs/rulesEngine'),
+    persoEngine = require(rootPath + '/libs/persoEngine'),
+    weatherService = require(rootPath + '/libs/weatherService'),
     ObjectId = require('mongoose').Types.ObjectId; 
 
 var Clothe = require(rootPath + '/models/clothe');
@@ -83,13 +87,12 @@ function top2Outfits(outfits, style){
 
 function sortOutfits(outfit1, outfit2) {
     var diffRate = 0;
+    
     for (var i = 0; i < outfit1.outfit.length; i++){
         for (var j = 0; j < outfit2.outfit.length; j++){
             if (outfit1.outfit[i].clothe_id !== outfit2.outfit[j].clothe_id && outfit1.outfit[i].clothe_type === outfit2.outfit[j].clothe_type){
                 diffRate += 100/outfit2.outfit.length;
-                 outfit2.outfit[j].clothe_image = undefined
             }
-            outfit1.outfit[i].clothe_image = undefined
         }
     }
 
@@ -113,21 +116,32 @@ function updateClothesColor(clothes){
 function removeClotheAlreadyUse(outfits, arrayOfCombinations){
     if (outfits.length === 0) return arrayOfCombinations;
     
-    
     for (var i = 0; i < arrayOfCombinations.length; i++){
-        for (var t = 0; t < arrayOfCombinations[i].length; t++){
-            if (arrayOfCombinations[i][t].length > 2){
-                for (var j = 0; j < outfits.length; j++){
-                    for (var k=0; k < outfits[j].outfit.length; k++){
-                        arrayOfCombinations[i][t] = arrayOfCombinations[i][t].filter(function (el) {
-                            return el.clothe_id !== outfits[j].outfit[k].clothe_id;
-                        });
-                    }
+        if (arrayOfCombinations[i].length > 4){
+            for (var j = 0; j < outfits.length; j++){
+                for (var k=0; k < outfits[j].outfit.length; k++){
+                    arrayOfCombinations[i] = arrayOfCombinations[i].filter(function (el) {
+                        return el.clothe_id !== outfits[j].outfit[k].clothe_id;
+                    });
                 }
             }
         }
     }
     return arrayOfCombinations;
+}
+
+function removeClothes(user, types, arrayOfCombinations, callback){
+    var j = arrayOfCombinations.length;
+    for (var i = 0; i < arrayOfCombinations.length; i++){
+        persoEngine.execute(user, types[i], arrayOfCombinations[i], function(result){
+            j--;
+            arrayOfCombinations[i] = result;
+            
+            if (j == 0){
+                callback();
+            }
+        });
+    }
 }
 
 function notEnoughOutfit(arrayOfCombinations){
@@ -151,6 +165,87 @@ function rmImages(clothes){
     }
     return clothes;
 }
+
+
+
+function retrieveWeather(lat, long, timezone, callback){
+    weatherService.getWheather(lat, long, timezone, function(err, weather){
+        callback(err, weather);
+    });
+}
+
+function retrieveOutfitOfTheDay(req, callback){
+    persoEngine.getOutfits(req.user, function(outfits){
+        if (outfits.length > 1){
+            callback(null, outfits);
+        } else {
+            Clothe.find({clothe_userid: new ObjectId(req.user._id)}, function(err, clothes){
+            if(err) {
+                 callback(err, null);
+            } else {
+                console.log("--->   v2.1 : ");
+                
+                var clothes = clothes;
+                var styles = [req.user.atWorkStyle, req.user.relaxStyle, req.user.onPartyStyle];
+                var sex = req.user.gender;
+   
+                var rules = [];
+                if (req.user.gender == "M"){
+                    rules = [ 
+                        { "clothe_type" : ["maille", "top", "pants"] }
+                    ];
+                } else {
+                    rules = [ 
+                        { "clothe_type" : ["maille", "top", "pants"] },
+                        { "clothe_type" : ["maille", "dress"] }
+                    ];
+                }
+
+                var arrayOfCombinations = [], outfits = [];
+
+                async.series([
+                    //Remove all clothes already propose a certain amount of time this week.
+                    function(callbackClothes){
+                        persoEngine.removeClothes(req.user, clothes, function(clothesFiltered){
+                            //Get an array of array of prefiltered list of clothe depending of rules
+                            arrayOfCombinations = contextEngine.execute(clothesFiltered, rules);
+                            console.log("----------------------------------- " + clothesFiltered.length);
+                            callbackClothes(null);
+                        });
+                    },    
+                    function(callbackOutfit){
+                        async.eachSeries(styles, function(style, endCallback){
+                            async.eachSeries(arrayOfCombinations, function(item, callback){
+                                item = removeClotheAlreadyUse(outfits, item);
+                                if (!check1ArrayIsEmpty(item)) {
+                                    var temp = styleEngine.calculateOutfits(style, sex, item, 40)
+                                    temp.sort(sortOutfits)
+                                    
+                                    var selectedOutfits = top2Outfits(temp, style);
+                                    outfits = outfits.concat(selectedOutfits);
+                                    callback();
+                                } else {
+                                    callback();
+                                }
+                            }, function(err){
+                                 endCallback();
+                            });
+                        }, function(err){
+                            //Save current suggestion outfits
+                            persoEngine.saveOutfits(req.user, outfits);
+                            callbackOutfit(null, outfits);
+                        });
+                        
+                    }
+                ], function(err, outfits){
+                    callback(null, outfits[1]);
+                });
+            }
+            });
+        }            
+    });
+}
+
 
 router.post('/', passport.authenticate('bearer', { session: false }) , function(req, res) {
     if (typeof req.body !== 'undefined' && typeof req.body.styles !== 'undefined' && typeof req.body.dressing !== 'undefined' && typeof req.body.weather !== 'undefined') {
@@ -198,10 +293,9 @@ router.post('/v2/', passport.authenticate('bearer', { session: false }) , functi
     
     if (typeof req.body !== 'undefined' && typeof req.body.weather !== 'undefined') {
         Clothe.find({clothe_userid: new ObjectId(req.user._id)}, function(err, clothes){
-            if(err)
+            if(err) {
                 res.send(500, err);
-            else {
-                clothes = rmImages(clothes);
+            } else {
                 console.log("--->   v2 : ");
                 var clothes = clothes;
                 console.log(req.body.styles);
@@ -210,41 +304,107 @@ router.post('/v2/', passport.authenticate('bearer', { session: false }) , functi
                 var weather = req.body.weather;
                 
                 var outfits = [];
-                for (var j=0; j < styles.length; j++){
-                     var rules = ""
-                    if (req.user.gender == "M"){
-                        rules = [ 
-                            { "clothe_type" : ["maille", "top", "pants"] }
-                        ];
-                    } else {
-                        rules = [ 
-                            { "clothe_type" : ["maille", "top", "pants"] },
-                            { "clothe_type" : ["maille", "dress"] }
-                        ];
-                    }
-
-                    //Get an array of array of prefiltered list of clothe depending of rules
-                    var arrayOfCombinations = contextEngine.execute(clothes, rules);
-                    console.log("----------------------------------- " + arrayOfCombinations.length);
-                    console.log(JSON.stringify(arrayOfCombinations));
-                    //For each combination calculate outfits
-                    for (var i = 0; i < arrayOfCombinations.length; i++){
-                        //Check if all list of clothes are not empty.
-                        if (!check1ArrayIsEmpty(arrayOfCombinations[i])) {
-                            arrayOfCombinations = removeClotheAlreadyUse(outfits, arrayOfCombinations);
-                            var temp = styleEngine.calculateOutfits(styles[i], sex, arrayOfCombinations[i], 0)
-                            temp.sort(sortOutfits)
-                            console.log("Number Outfits " + temp.length + " " + styles[j]);
-                            outfits = outfits.concat(top2Outfits(temp, styles[j]));
-                        }
-                    }
+                var rules = ""
+                if (req.user.gender == "M"){
+                    rules = [ 
+                        { "clothe_type" : ["maille", "top", "pants"] }
+                    ];
+                } else {
+                    rules = [ 
+                        { "clothe_type" : ["maille", "top", "pants"] },
+                        { "clothe_type" : ["maille", "dress"] }
+                    ];
                 }
-                res.send(outfits);
+
+                //Get an array of array of prefiltered list of clothe depending of rules
+                var arrayOfCombinations = contextEngine.execute(clothes, rules);
+                console.log("----------------------------------- " + arrayOfCombinations.length);
+
+              /*  //For each combination calculate outfits
+                for (var i = 0; i < arrayOfCombinations.length; i++){
+                    //Check if all list of clothes are not empty.
+                    //arrayOfCombinations = removeClotheAlreadyUse(outfits, arrayOfCombinations);
+                    persoEngine.execute(req.user, rules[i].clothe_type, arrayOfCombinations[i], function(combinationFiltered){
+                        if (!check1ArrayIsEmpty(combinationFiltered)) {
+                            for (var j=0; j < styles.length; j++){
+                                var temp = styleEngine.calculateOutfits(styles[i], sex, combinationFiltered, 0)
+                                temp.sort(sortOutfits)
+                                console.log("Number Outfits " + temp.length + " " + styles[j]);
+                                var selectedOutfits = top2Outfits(temp, styles[j]);
+                                persoEngine.saveOutfits(req.user, selectedOutfits);
+                                outfits = outfits.concat(selectedOutfits);
+                            }
+                        }
+                    });
+                } */
+                async.each(styles, function(style, endCallback){
+                    async.each(arrayOfCombinations, function(item, callback){
+                        console.log(style);
+                        persoEngine.execute(req.user, item, function(combinationFiltered){
+                            if (!check1ArrayIsEmpty(combinationFiltered)) {
+                                var temp = styleEngine.calculateOutfits(style, sex, combinationFiltered, 0)
+                                temp.sort(sortOutfits)
+                                console.log("Number Outfits " + temp.length + " " + style);
+                                var selectedOutfits = top2Outfits(temp, style);
+                                persoEngine.saveOutfits(req.user, selectedOutfits);
+                                outfits = outfits.concat(selectedOutfits);
+                                callback();
+                            }
+                        });
+                    }, 
+                    function (err){
+                        endCallback();
+                               
+                    });
+                }, function (err){
+                    res.send(outfits);
+                });
+                 
+                
             }
         });
 	} else {
-		res.send(500,"Server Error"); return;
+		res.send(500,"Server Error"); 
+        return;
 	}
+});
+
+router.get('/v2.1/', passport.authenticate('bearer', { session: false }) , function(req, res) {
+    
+    async.parallel({
+        weather : function(callback){
+            retrieveWeather(req.query.lat, req.query.long, req.query.timezone, function(err, weather){
+                callback(null, weather);
+            });
+        },    
+        outfits : function(callback){
+            retrieveOutfitOfTheDay(req, function(err, outfits){
+                callback(err, outfits);
+            });
+        }
+    },function (err, results){
+        res.send(results);    
+    });
+});
+
+router.get('/test', function (req, res){
+    var styleCalc = function(stylized) {
+        var probabNotGood          = fuzzylogic.trapezoid(stylized, 0, 10, 30, 40);
+        var probabGood      = fuzzylogic.trapezoid(stylized, 30, 40, 70, 80);
+        var probabVeryGood     = fuzzylogic.trapezoid(stylized, 70, 80, 100, 110);
+        
+        console.log('------ Stylized: ' + stylized);
+        
+        console.log('Not good: '       + probabNotGood);
+        console.log('Good: '   + probabGood);
+        console.log('Very Good: '  + probabVeryGood);
+    };
+    
+    for (var i = 0; i <= 100; i = i+5){
+        styleCalc(i);
+    }
+    
+    res.send("ok");
 });
 
 /**********************************************************/

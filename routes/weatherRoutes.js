@@ -4,9 +4,7 @@ var express = require('express'),
     http = require('http');
 
 
-var appId = "77775d8069b7d87e421e7c1ec4f84bcc"
-// "http://api.openweathermap.org/data/2.5/weather?lat=\(position.coordinate.latitude)&lon=\(position.coordinate.longitude)&APPID=\(appId)&units=\(unit)"
-// "http://api.openweathermap.org/data/2.5/forecast/?lat=\(position.coordinate.latitude)&lon=\(position.coordinate.longitude)&APPID=\(appId)&units=\(unit)"
+var appId = "77775d8069b7d87e421e7c1ec4f84bcc";
 
 function getCurrentWeather(unit, lat, long, callback){
     var optionsget = {
@@ -85,7 +83,7 @@ function wrapToWeather(object, time){
         weather["hour"] = hour;
         weather["time"] = time;
         weather["temp"] = object["main"]["temp"];
-        weather["tempMin"] = object["main"]["temp_min"];
+        weather["tempMin"] = typeof object["main"]["temp_min"] !== 'undefined' ? object["main"]["temp_min"] : 0;
         weather["tempMax"] = object["main"]["temp_max"];
         weather["code"] = object["weather"][0]["id"];
         weather["icon"] = codeToFont(object["weather"][0]["id"]);
@@ -245,7 +243,6 @@ var transcodeValue = [
         [961,"violent storm","E","E"  ],
         [962,"hurricane","E","E"  ]
     ]
-    
 
 var currentMock = {
     "coord":{

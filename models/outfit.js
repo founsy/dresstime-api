@@ -10,6 +10,10 @@ var mongoose = require('mongoose'),
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Clothe'
         }],
+        putOn: {
+            type: Boolean,
+            default: false
+        },
         style: {
             type: String
         },
@@ -21,4 +25,13 @@ var mongoose = require('mongoose'),
 			default: Date.now
 		}
     });
+
+Outfit.methods.getToSend = function(){
+    return {
+        outfit : this.clothes,
+        matchingRate: this.matchingRate,
+        style: this.style
+    }
+};
+
 module.exports = mongoose.model('Outfit', Outfit);
