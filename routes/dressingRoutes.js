@@ -8,7 +8,7 @@ var express = require('express'),
     imagesManager = require(rootPath + '/libs/imagesManager'),
     ObjectId = require('mongoose').Types.ObjectId; 
 
-router.get('/clothes/', passport.authenticate('bearer', { session: false }), function(req, res){
+router.get('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
     Clothe.find({clothe_userid: new ObjectId(user._id)}, function(err, clothes){
         if(err)
@@ -18,7 +18,7 @@ router.get('/clothes/', passport.authenticate('bearer', { session: false }), fun
     });
 });
 
-router.post('/clothes/', passport.authenticate('bearer', { session: false }), function(req, res){
+router.post('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
     var clothe = req.body.dressing[0];
     var clotheToSave = Clothe({
@@ -46,7 +46,7 @@ router.post('/clothes/', passport.authenticate('bearer', { session: false }), fu
     });	
 });
 
-router.put('/clothes/', passport.authenticate('bearer', { session: false }), function(req, res){
+router.put('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
     var newClothe = req.body;
     console.log(newClothe.clothe_id);
@@ -60,20 +60,20 @@ router.put('/clothes/', passport.authenticate('bearer', { session: false }), fun
     });
 });
 
-router.get('/clothes/:id', passport.authenticate('bearer', { session: false }), function(req, res){
+router.get('/clothes/:id', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
-    Clothe.findOne({clothe_id: req.param('id')}, function(err, clothes){
+    Clothe.findOne({clothe_id: req.param('id')}, function(err, clothe){
         console.log(err);
         if(err){
            res.send(500, err);
         } else {
-            res.send(clothes);  
+            res.send(clothe);  
         }
     });
 });
 
 
-router.get('/clothes/image/:id', passport.authenticate('bearer', { session: false }), function(req, res){
+router.get('/clothes/image/:id', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
     console.log(req.param('id'));
     Clothe.findOne({clothe_id: req.param('id')}, function(err, clothe){
@@ -85,7 +85,7 @@ router.get('/clothes/image/:id', passport.authenticate('bearer', { session: fals
     });
 });
 
-router.delete('/clothes/:id', passport.authenticate('bearer', { session: false }), function(req, res){
+router.delete('/clothes/:id', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
     
     Clothe.remove({clothe_id: req.param('id')}, function(err, doc){
@@ -97,7 +97,7 @@ router.delete('/clothes/:id', passport.authenticate('bearer', { session: false }
     });
 });
 
-router.get('/clothesIds/', passport.authenticate('bearer', { session: false }), function(req, res){
+router.get('/clothesIds/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;   
     Clothe.find({clothe_userid: new ObjectId(user._id)}, function(err, clothes){
         if(err) {

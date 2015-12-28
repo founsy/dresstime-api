@@ -247,7 +247,7 @@ function retrieveOutfitOfTheDay(req, callback){
 }
 
 
-router.post('/', passport.authenticate('bearer', { session: false }) , function(req, res) {
+router.post('/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
     if (typeof req.body !== 'undefined' && typeof req.body.styles !== 'undefined' && typeof req.body.dressing !== 'undefined' && typeof req.body.weather !== 'undefined') {
         var clothes = req.body.dressing;
 		var styles = req.body.styles;
@@ -289,7 +289,7 @@ router.post('/', passport.authenticate('bearer', { session: false }) , function(
 	}
 });
 
-router.post('/v2/', passport.authenticate('bearer', { session: false }) , function(req, res) {
+router.post('/v2/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
     
     if (typeof req.body !== 'undefined' && typeof req.body.weather !== 'undefined') {
         Clothe.find({clothe_userid: new ObjectId(req.user._id)}, function(err, clothes){
@@ -369,8 +369,8 @@ router.post('/v2/', passport.authenticate('bearer', { session: false }) , functi
 	}
 });
 
-router.get('/v2.1/', passport.authenticate('bearer', { session: false }) , function(req, res) {
-    
+router.get('/v2.1/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
+    console.log("------------ v2.1");
     async.parallel({
         weather : function(callback){
             retrieveWeather(req.query.lat, req.query.long, req.query.timezone, function(err, weather){
@@ -412,7 +412,7 @@ router.get('/test', function (req, res){
         Save the outfit of the day
 
 **********************************************************/
-router.post('/OOTD', passport.authenticate('bearer', { session: false }) , function(req, res) {
+router.post('/OOTD', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
     //GET 
     /*{
         style = "",

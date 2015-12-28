@@ -153,7 +153,7 @@ function getTimeFrame(){
     return nil
 }
 
-router.get('/', passport.authenticate('bearer', { session: false }), function(req, res){
+router.get('/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     
     var lat = req.query.lat;
     var long = req.query.long;

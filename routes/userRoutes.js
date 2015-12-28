@@ -18,17 +18,20 @@ router.get('/:username', function(req, res){
     });
 });*/
 
-router.get('/', passport.authenticate('bearer', { session: false }) , function(req, res){
+router.get('/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res){
     var query = User.findOne();
     query.where('username', req.user.username);
     query.exec(function (err, user) {
         if (err) { res.send(500, err); }
-        console.log(user);
-        res.send(user.getToSend());
+        if (!user){
+            res.send(req.user);
+        } else {
+            res.send(user);
+        }
     });
 });
 
-router.put('/updateImages', passport.authenticate('bearer', { session: false }) , function(req, res){
+router.put('/updateImages', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res){
     Clothe.find({}, function(err, clothes){
         if(err) {
            res.send(500, err);
@@ -44,7 +47,7 @@ router.put('/updateImages', passport.authenticate('bearer', { session: false }) 
 
 
 
-router.post('/', passport.authenticate('bearer', { session: false }), function(req, res){
+router.post('/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
 		var user = req.body;
 		mongoDb.insertUser(user)
   		.then(function (result){ //case in which user already exists in db
@@ -53,7 +56,7 @@ router.post('/', passport.authenticate('bearer', { session: false }), function(r
   			res.send(500, error);
   		});		
 	})
-	.put('/', passport.authenticate('bearer', { session: false }),function(req, res){
+	.put('/', passport.authenticate(['facebook-token', 'bearer'], { session: false }),function(req, res){
         var query = User.findOne();
         query.where('username', req.user.username);
         query.exec(function (err, user) {
@@ -69,6 +72,9 @@ router.post('/', passport.authenticate('bearer', { session: false }), function(r
             user.tempUnit = typeof newUser.tempUnit !== 'undefined' ? newUser.tempUnit : user.tempUnit;
             user.gender = typeof newUser.gender !== 'undefined' ? newUser.gender : user.gender;
             user.picture = typeof newUser.picture !== 'undefined' ? newUser.picture : user.picture;
+            user.fb_id = typeof newUser.fb_id !== 'undefined' ? newUser.fb_id : user.fb_id;
+            user.fb_token = typeof newUser.fb_token !== 'undefined' ? newUser.fb_token : user.fb_token;
+            
             user.save(function(err) {
                 if (err) {
                     res.send(500, err);

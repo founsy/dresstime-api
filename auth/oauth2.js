@@ -47,7 +47,6 @@ var generateTokens = function (data, done) {
 
     token.save(function (err) {
     	if (err) {
-			
 			console.log(err);
     		return done(err); 
     	}
@@ -60,14 +59,18 @@ var generateTokens = function (data, done) {
 
 // Exchange username & password for access token.
 aserver.exchange(oauth2orize.exchange.password(function(client, username, password, scope, done) {
-	
-	User.findOne({  $or:[ {'username':username}, {'email': username}, {'displayName': username} ] }, function(err, user) {
-		
+	var lowerCase = username.toLowerCase()
+    
+	User.findOne({  $or:[ {'username': username.toLowerCase()}, {'email': username.toLowerCase()}, {'displayName': username.toLowerCase() } ] }, function(err, user) {
 		if (err) { 
 			return done(err); 
 		}
-		
-		if (!user || !user.checkPassword(password)) {
+		console.log(user)
+        if (typeof user.isVerified !== 'undefined' && !user.isVerified){
+            //Error Code : 001 = Please Verified your account
+            return done(new Error('001'));
+        }
+		if (!user || !user.checkPassword(password) || (typeof user.isVerified !== 'undefined' && !user.isVerified)) {
 			return done(null, false);
 		}
 
@@ -116,7 +119,7 @@ aserver.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken
 // authenticate when making requests to this endpoint.
 
 exports.token = [
-	passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
+	passport.authenticate(['basic', 'oauth2-client-password', 'facebook'], { session: false }),
 	aserver.token(),
 	aserver.errorHandler()
 ];

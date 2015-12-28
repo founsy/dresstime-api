@@ -19,6 +19,7 @@ var dressing = require('./routes/dressingRoutes');
 var auth = require('./routes/authRoutes');
 var outfits = require('./routes/outfitsRoutes');
 var brandOutfits = require('./routes/brandOutfitsRoutes');
+var mailVerification = require('./routes/mailVerification');
 
 var app = express();
 
@@ -41,6 +42,7 @@ app.use(passport.initialize());
 app.use('/', api);
 app.use('/api', api);
 app.use('/users', users);
+app.use('/email', mailVerification);
 //app.use('/zara', zara);
 app.use('/oauth/token', oauth2.token);
 app.use('/dressing', dressing);
@@ -48,6 +50,17 @@ app.use('/auth', auth);
 app.use('/outfits', outfits);
 app.use('/brand', brandOutfits);
 app.use('/weather', weather);
+
+
+app.use(passport.session());
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next){

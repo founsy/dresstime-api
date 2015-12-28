@@ -40,12 +40,22 @@ var mongoose = require('mongoose'),
             type: String,
             default: "M"
         },
+        isVerified: {
+            type: Boolean,
+            default: false
+        },
         picture: {
+            type: String
+        },
+        fb_id: {
+            type: String
+        },
+        fb_token: {
             type: String
         },
 		hashedPassword: {
 			type: String,
-			required: true
+			required: false
 		},
 		salt: {
 			type: String,
@@ -91,7 +101,10 @@ User.methods.getToSend = function(){
         relaxStyle: this.relaxStyle,
         tempUnit: this.tempUnit,
         gender: this.gender,
-        picture: this.picture
+        picture: this.picture,
+        isVerified: this.isVerified,
+        fb_id: this.fb_id,
+        fb_token: this.fb_token
     }
 };
 

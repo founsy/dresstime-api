@@ -16,7 +16,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var brandClothesMen = require(rootPath + '/db/homme.json'),
     brandClothesWomen = require(rootPath + '/db/femme.json');
 
-router.get('/', passport.authenticate('bearer', { session: false }) , function(req, res) {
+router.get('/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
     var user = req.user;
     Clothe.find({clothe_userid: new ObjectId(user._id)}, function(err, clothes){
         if(err) { res.send(500, err); }
