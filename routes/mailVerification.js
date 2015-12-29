@@ -13,8 +13,8 @@ var express = require('express'),
 
 
 function sendVerificationEmail(email, callback){
-    User.findOne({  $or:[ {'username': { $regex: new RegExp("^" + username.toLowerCase(), "i") }}, {'email': { $regex: new RegExp("^" + username.toLowerCase(), "i") }}, {'displayName': { $regex: new RegExp("^" + username.toLowerCase(), "i") }} ] }, function(err, user) {
-        if (err){
+    User.findOne({  $or:[ {'username': email.toLowerCase()}, {'email': email.toLowerCase()}, {'displayName': email.toLowerCase() } ] }, function(err, user) {
+	        if (err){
             callback(err);
         }  
         if (!user){
@@ -50,7 +50,7 @@ function sendVerificationEmail(email, callback){
                         pass: "57Loge52S"
                     }
                 }));
-
+                
                 //Create Email
                 mailOptions={
                     to : user.email,
@@ -58,13 +58,15 @@ function sendVerificationEmail(email, callback){
                     subject : "Please confirm your Email account",
                     html : "Hello,<br> Please Click on the link to verify your email.<br><a href="+link+">Click here to verify</a>" 
                 }
-
+                console.log("Email Sending");
                 //Send it
                 transport.sendMail(mailOptions, function(error, response){
+                    console.log("sendMail");
                     if(error){
                         console.log(error);
                         callback(error);
                     }else{
+                        console.log("Email Send");
                         callback(null,  response.message)
                     }
                 }); 

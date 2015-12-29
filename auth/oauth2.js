@@ -59,13 +59,14 @@ var generateTokens = function (data, done) {
 
 // Exchange username & password for access token.
 aserver.exchange(oauth2orize.exchange.password(function(client, username, password, scope, done) {
-	var lowerCase = username.toLowerCase()
-    
 	User.findOne({  $or:[ {'username': username.toLowerCase()}, {'email': username.toLowerCase()}, {'displayName': username.toLowerCase() } ] }, function(err, user) {
 		if (err) { 
 			return done(err); 
 		}
-		console.log(user)
+		if (!user){
+            return done(new Error("No user found"));
+        }
+        
         if (typeof user.isVerified !== 'undefined' && !user.isVerified){
             //Error Code : 001 = Please Verified your account
             return done(new Error('001'));
