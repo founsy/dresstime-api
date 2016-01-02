@@ -97,13 +97,13 @@ function getCurrentWeather(unit, lat, long, callback){
         });
         
         res.on("end", function() {
-            callback(JSON.parse(finalData));
+            callback(null, JSON.parse(finalData));
         });
     });
 
     reqGet.end();
     reqGet.on('error', function(e) {
-        res.send(500, 'Error');
+        callback(new Error("Error retrieve current weather"));
     });
 }
 
@@ -125,13 +125,13 @@ function getForecastWeather(unit, lat, long, callback){
         });
         
         res.on("end", function() {
-            callback(JSON.parse(finalData));
+            callback(null, JSON.parse(finalData));
         });
     });
 
     reqGet.end();
     reqGet.on('error', function(e) {
-        res.send(500, 'Error');
+        res.send(new Error("Error retrieve forecast weather"));
     });
 }
 
@@ -244,9 +244,13 @@ function getTimeFrame(timezone){
 
 exports.getWheather = function(lat, long, timezone, callback){
     if (typeof lat !== 'undefined' && typeof long !== 'undefined'){
-        getCurrentWeather('metric', lat, long, function(currentWeather){
-            getForecastWeather('metric', lat, long, function(forecastWeather) {
-            
+        getCurrentWeather('metric', lat, long, function(errorCurrent, currentWeather){
+            if (errorCurrent) 
+                return callback(errorCurrent)
+            getForecastWeather('metric', lat, long, function(error, forecastWeather) {
+                if (error){
+                    return callback(error)
+                }
                 var timezoneUTC = typeof timezone !== 'undefined' ? timezone : 0;
                 
                 callback(null, wrapListWeather(currentWeather, forecastWeather, timezone)); 

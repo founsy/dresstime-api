@@ -10,7 +10,7 @@ var mongoose = require('mongoose'),
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Clothe'
         }],
-        putOn: {
+        isPutOn: {
             type: Boolean,
             default: false
         },
@@ -20,6 +20,10 @@ var mongoose = require('mongoose'),
         matchingRate: {
             type: Number
         },
+        isSuggestion: {
+            type: Boolean,
+            default: true
+        },
 		updated: {
 			type: Date,
 			default: Date.now
@@ -28,9 +32,11 @@ var mongoose = require('mongoose'),
 
 Outfit.methods.getToSend = function(){
     return {
-        outfit : this.clothes,
+        clothes : this.clothes,
         matchingRate: this.matchingRate,
-        style: this.style
+        style: this.style,
+        putOn: this.putOn,
+        isSuggestion : this.isSuggestion
     }
 };
 

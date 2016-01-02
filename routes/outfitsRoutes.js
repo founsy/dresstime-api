@@ -13,7 +13,8 @@ var styleEngine = require(rootPath + '/libs/styleEngine'),
     weatherService = require(rootPath + '/libs/weatherService'),
     ObjectId = require('mongoose').Types.ObjectId; 
 
-var Clothe = require(rootPath + '/models/clothe');
+var Clothe = require(rootPath + '/models/clothe'),
+    Outfit = require(rootPath + '/models/outfit');
 
 function check1ArrayIsEmpty(arrayOfCombination){
     for (var j = 0; j<arrayOfCombination.length; j++){
@@ -167,7 +168,6 @@ function rmImages(clothes){
 }
 
 
-
 function retrieveWeather(lat, long, timezone, callback){
     weatherService.getWheather(lat, long, timezone, function(err, weather){
         callback(err, weather);
@@ -176,7 +176,7 @@ function retrieveWeather(lat, long, timezone, callback){
 
 function retrieveOutfitOfTheDay(req, callback){
     persoEngine.getOutfits(req.user, function(outfits){
-        if (outfits.length > 1){
+        if (outfits.length > 100){
             callback(null, outfits);
         } else {
             Clothe.find({clothe_userid: new ObjectId(req.user._id)}, function(err, clothes){
@@ -206,7 +206,7 @@ function retrieveOutfitOfTheDay(req, callback){
                 async.series([
                     //Remove all clothes already propose a certain amount of time this week.
                     function(callbackClothes){
-                        persoEngine.removeClothes(req.user, clothes, function(clothesFiltered){
+                        persoEngine.apply(req.user, clothes, function(err, clothesFiltered){
                             //Get an array of array of prefiltered list of clothe depending of rules
                             arrayOfCombinations = contextEngine.execute(clothesFiltered, rules);
                             console.log("----------------------------------- " + clothesFiltered.length);
@@ -420,6 +420,14 @@ router.post('/OOTD', passport.authenticate(['facebook-token', 'bearer'], { sessi
     }*/
     var user = req.user;
     var outfit = req.body;
+    req.body["userid"] = req.user._id
+    console.log(new Outfit(req.body));
+    /*
+    var newOutfit = new Outfit({userid: user._id, clothes : refClothes, style : outfits[i].style, matchingRate: outfits[i].matchingRate});
+        newOutfit.save(function (err) {
+            if (err) return callbackResult(err);
+            //return callbackResult(null, newOutfit);
+    }); */
 });
 
 //Return 1 Outfits by Style
