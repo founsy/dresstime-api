@@ -1,3 +1,9 @@
+/**
+ * Module to manage all the routes about outfits
+ * based url '/outfits/'
+ * @module OutfitsRoute
+ */
+
 var express = require('express');
 var router = express.Router();
 var http = require('http');
@@ -167,7 +173,6 @@ function rmImages(clothes){
     return clothes;
 }
 
-
 function retrieveWeather(lat, long, timezone, callback){
     weatherService.getWheather(lat, long, timezone, function(err, weather){
         callback(err, weather);
@@ -246,7 +251,10 @@ function retrieveOutfitOfTheDay(req, callback){
     });
 }
 
-
+/**
+* Get outfits route '/'
+* @deprecated
+*/
 router.post('/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
     if (typeof req.body !== 'undefined' && typeof req.body.styles !== 'undefined' && typeof req.body.dressing !== 'undefined' && typeof req.body.weather !== 'undefined') {
         var clothes = req.body.dressing;
@@ -289,6 +297,10 @@ router.post('/', passport.authenticate(['facebook-token', 'bearer'], { session: 
 	}
 });
 
+/**
+* Get outfits route '/v2'
+* @deprecated
+*/
 router.post('/v2/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
     
     if (typeof req.body !== 'undefined' && typeof req.body.weather !== 'undefined') {
@@ -369,6 +381,13 @@ router.post('/v2/', passport.authenticate(['facebook-token', 'bearer'], { sessio
 	}
 });
 
+/**
+* Get outfits route '/v2.1/'
+* @param {Number} req.query.lat
+* @param {Number} req.query.long
+* @param {Number} req.query.timezone
+* @returns {weather: Object, outfits: Array}
+*/
 router.get('/v2.1/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
     console.log("------------ v2.1");
     async.parallel({
@@ -387,31 +406,10 @@ router.get('/v2.1/', passport.authenticate(['facebook-token', 'bearer'], { sessi
     });
 });
 
-router.get('/test', function (req, res){
-    var styleCalc = function(stylized) {
-        var probabNotGood          = fuzzylogic.trapezoid(stylized, 0, 10, 30, 40);
-        var probabGood      = fuzzylogic.trapezoid(stylized, 30, 40, 70, 80);
-        var probabVeryGood     = fuzzylogic.trapezoid(stylized, 70, 80, 100, 110);
-        
-        console.log('------ Stylized: ' + stylized);
-        
-        console.log('Not good: '       + probabNotGood);
-        console.log('Good: '   + probabGood);
-        console.log('Very Good: '  + probabVeryGood);
-    };
-    
-    for (var i = 0; i <= 100; i = i+5){
-        styleCalc(i);
-    }
-    
-    res.send("ok");
-});
-
-/**********************************************************/
-/*
-        Save the outfit of the day
-
-**********************************************************/
+/**
+* Save the outfit of the day route '/OOTD'
+* @param {Outfit} req.body - Outfit to save
+*/
 router.post('/OOTD', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
     //GET 
     /*{

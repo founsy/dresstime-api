@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: styleEngine.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: styleEngine.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * Module to calculate outfits by style
  * @module StyleEngine
  */
@@ -13,7 +41,7 @@ var data = require(rootPath + '/db/data');
 * Calculate outfits depending of the style
 * @param {String} style - Number of clothe for a specific type
 * @param {String} sex - Sexe to determine the matrix  to use
-* @param {Array.<Array.<Clothte>>} clothes - Array by type of array of clothe
+* @param {Array.&lt;Array.&lt;Clothte>>} clothes - Array by type of array of clothe
 * @param {Number} maxScore - Max score acceptable
 * @returns {Outfit[]} Outfits
 */
@@ -33,7 +61,7 @@ exports.calculateOutfits = function (style, sex, clothes, maxScore){
 */
 exports.getOutfit = function(style, sex, clothes, maxScore){
     var combine = cartesian(clothes);
-    for (var nbrComb = 0; nbrComb < combine.length; nbrComb++){  
+    for (var nbrComb = 0; nbrComb &lt; combine.length; nbrComb++){  
         var globalScore = scoreRecursif(style, sex, combine[nbrComb]);
         //console.log("----------" + globalScore + "------------");
          if (globalScore > maxScore){
@@ -51,8 +79,8 @@ exports.getOutfit = function(style, sex, clothes, maxScore){
 */
 function removeClotheAlreadyUse(outfit, combine, numberClotheByType){
     combine = combine.filter(function(el){
-        for (var i = 2; i < el.length; i++){
-            for (var j = 2; j < outfit.length; j++){
+        for (var i = 2; i &lt; el.length; i++){
+            for (var j = 2; j &lt; outfit.length; j++){
                 if (el[i - 2].clothe_id === outfit[j - 2].clothe_id || el[i - 1].clothe_id === outfit[j -1 ].clothe_id || el[i].clothe_id === outfit[j].clothe_id ){
                     return false;
                 } else {
@@ -100,14 +128,14 @@ function getMatrixForStyle(style, sexe){
 * Internal methode to calculate the outifts
 * @param {String} style - Number of clothe for a specific type
 * @param {String} sex - Sexe to determine the matrix  to use
-* @param {Array.<Clothe>} clothes - Array of combinations
+* @param {Array.&lt;Clothe>} clothes - Array of combinations
 * @param {Number} maxScore - Max score acceptable
 * @returns {Outfit[]} Outfits
 */
 function calculateOutfits(style, sex, clothes, maxScore){
     var combine = cartesian(clothes);
     var numberOfClothesByType = {};
-    for (var i = 0; i < clothes.length; i++){
+    for (var i = 0; i &lt; clothes.length; i++){
         if (clothes[i].length > 0){
             numberOfClothesByType[clothes[i][0].clothe_type] = clothes[i].length;        
         }
@@ -134,14 +162,14 @@ function calculateOutfits(style, sex, clothes, maxScore){
 * Calculate the score for a specific outfit with recursif approach
 * @param {String} style - Style name
 * @param {String} sexe - Sexe
-* @param {Array.<Clothe>} outfit - Array of clothes to create an outfit
+* @param {Array.&lt;Clothe>} outfit - Array of clothes to create an outfit
 * @returns {Number} Scoring of the clothe's combination
 */
 function scoreRecursif(style, sexe, outfit){
     var score = 0, k = 0;
     //console.log(outfits[0].clothe_id + " " + outfits[1].clothe_id);
-    for (var i = 0; i < outfit.length; i++){
-        for (var t = 0; t < outfit.length; t++){
+    for (var i = 0; i &lt; outfit.length; i++){
+        for (var t = 0; t &lt; outfit.length; t++){
             if (t > i){
                 var temp = scoring2Elements(style, sexe, outfit[i], outfit[t]);
                 score += temp;
@@ -154,13 +182,13 @@ function scoreRecursif(style, sexe, outfit){
 
 /**
 * Create an array of all possible combination of different type of clothe
-* @param {Array.<Clothe>} arrayList - Array of clothes
-* @returns {Array.<Outfit>} array of all the possible combination of different type of clothe
+* @param {Array.&lt;Clothe>} arrayList - Array of clothes
+* @returns {Array.&lt;Outfit>} array of all the possible combination of different type of clothe
 */
 function cartesian(arrayList) {
     var r = [], arg = arrayList, max = arg.length-1;
     function helper(arr, i) {
-        for (var j=0, l=arg[i].length; j<l; j++) {
+        for (var j=0, l=arg[i].length; j&lt;l; j++) {
             var a = arr.slice(0); // clone arr
             a.push(arg[i][j]);
             if (i==max)
@@ -225,7 +253,7 @@ function styleMatching(style, sexe, elem1, elem2){
 	y = getIndexStyleMatrix(style, sexe, 0, subType1); 
 	x = getIndexStyleMatrix(style, sexe, 1, subType2);
 	
-	if (x > -1 && y > -1){
+	if (x > -1 &amp;&amp; y > -1){
         var matrixStyleName = getMatrixForStyle(style, sexe);
 		return parseInt(data[matrixStyleName][x][y]);
     }
@@ -245,7 +273,7 @@ function colorMatching(elem1, elem2){
 	var color2 = typeof elem2.clothe_litteralColor !== 'undefined' ? elem2.clothe_litteralColor : elem2.clothe_colors
     var x = getIndexColorsMatrix(0, color1); 
     var y = getIndexColorsMatrix(1, color2);
-	if (x > -1 && y > -1 )
+	if (x > -1 &amp;&amp; y > -1 )
 		return parseInt(data.colorsMatching[x][y]);
 	else 
 		return 0;
@@ -266,7 +294,7 @@ function getIndexStyleMatrix(style, sexe, type, property){
 	if (type == 0){
 		return data[matrixStyleName][0].indexOf(property.toLowerCase()); 
 	} else if (type == 1){
-		for (var i = 0; i < data[matrixStyleName].length; i ++) {
+		for (var i = 0; i &lt; data[matrixStyleName].length; i ++) {
 			var array = data[matrixStyleName][i];
 			if (array[0] === property.toLowerCase())
 				return i;
@@ -282,13 +310,13 @@ function getIndexStyleMatrix(style, sexe, type, property){
 */
 function getIndexColorsMatrix(type, property){
 	if (type == 0){
-		for (var i = 1; i < data.colorsMatching[0].length; i ++) {
+		for (var i = 1; i &lt; data.colorsMatching[0].length; i ++) {
 			if (data.colorsMatching[0][i].toLowerCase() === property.toLowerCase()){
 				return i;
 			}
 		}
 	} else if (type == 1){
-		for (var i = 1; i < data.colorsMatching.length; i ++) {
+		for (var i = 1; i &lt; data.colorsMatching.length; i ++) {
 			var array = data.colorsMatching[i];
 			if (array[0].toLowerCase() === property.toLowerCase())
 				return i;
@@ -307,10 +335,32 @@ function getIndexPatternMatrix(type, property){
 	if (type == 0){
 		return data.patternMatching[0].indexOf(property); 
 	} else if (type == 1){
-		for (var i = 0; i < data.patternMatching.length; i ++) {
+		for (var i = 0; i &lt; data.patternMatching.length; i ++) {
 			var array = data.patternMatching[i];
 			if (array[0] == property)
 				return i;
 		}
 	}
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-PersoEngine.html">PersoEngine</a></li><li><a href="module-StyleEngine.html">StyleEngine</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Jan 04 2016 16:24:02 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

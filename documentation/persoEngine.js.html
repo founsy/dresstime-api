@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: persoEngine.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: persoEngine.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * Module to manage outfits and specificly filtered the user's clothe list 
  * depending on which clothe we already propose to him
  * @module PersoEngine
@@ -124,8 +152,8 @@ function retrieveValuations(user, isPutOn, callback){
             if(err) { return callback(err); }
             var clotheValuation = {};
             console.log(outfits.length);
-            for (var i = 0; i < outfits.length; i++){
-                for (var j = 0; j < outfits[i].clothes.length; j++){
+            for (var i = 0; i &lt; outfits.length; i++){
+                for (var j = 0; j &lt; outfits[i].clothes.length; j++){
                     var clothe = outfits[i].clothes[j];
                     var score = calculateSuggestionScoring(outfits[i].updated, new Date());
                     if (!isPutOn){
@@ -160,7 +188,7 @@ function retrieveValuations(user, isPutOn, callback){
  * @name PerformDeletingCb
  * @function
  * @param {Error} err - Information about the error.
- * @param {Array<Clothe>} clotheListFiltered - List of clothe filtered 
+ * @param {Array&lt;Clothe>} clotheListFiltered - List of clothe filtered 
  * @return undefined
  */
 
@@ -212,12 +240,12 @@ function performDeleting(clothesList, putOnValuation, suggestionValuation, callb
             break;
         }
         // Now, we can verified if the number of clothe resting is > 3 to continue
-        if (number[clothe.clothe_type] < 3) break;
+        if (number[clothe.clothe_type] &lt; 3) break;
         
         // In case of suggestion deleting - Catch if the limit of clothe necessary for 				
         //calculate outfit is not exceeded
         if (suggestionValuation[clothe.clothe_id] >= suggestionFrequency 
-            && number[clothe.clothe_type] - 1 > 3) {
+            &amp;&amp; number[clothe.clothe_type] - 1 > 3) {
             //Remove clothe of the list 
             clotheListFiltered.splice(i, 1);
             //Decrement total number
@@ -261,7 +289,7 @@ exports.getOutfits = function(user, cb){
         .exec(function(err, outfits){
             if(err) { return err; }
             var resultToSend = [];
-            for (var i = 0; i < outfits.length; i++){
+            for (var i = 0; i &lt; outfits.length; i++){
                 styleCalc(outfits[i].matchingRate);
                 resultToSend.push(
                     {
@@ -286,7 +314,7 @@ exports.getOutfits = function(user, cb){
 /**
 * Historize outfits for specific user
 * @param {Object} user - User for which we want to save outfits
-* @param {Array<Outfit>} outfits - Lists of outfits we want to save
+* @param {Array&lt;Outfit>} outfits - Lists of outfits we want to save
 * @param {SaveOutfitsCb} callbackResult - Callback returning potential error during saving
 */
 exports.saveOutfits = function(user, outfits, callbackResult){
@@ -299,11 +327,11 @@ exports.saveOutfits = function(user, outfits, callbackResult){
         $and : [{userid: new ObjectId(user._id)}, { updated : { $gt: startDate}} ]
     }
      Outfit.find(query, function(err, result){
-        if (result.length < 12){
-            for (var i= 0; i < outfits.length; i++){
+        if (result.length &lt; 12){
+            for (var i= 0; i &lt; outfits.length; i++){
                 var outfit = outfits[i].outfit;
                 var refClothes = [];
-                for (var j = 0; j < outfit.length; j++){
+                for (var j = 0; j &lt; outfit.length; j++){
                     refClothes.push(outfit[j]._id);
                 }
                            
@@ -331,7 +359,7 @@ exports.saveOutfits = function(user, outfits, callbackResult){
 /**
 * Remove all clothes already PutOn this week and exceeding the frequency authorized
 * @param {Object} user - User for which we want to remove clothes already used
-* @param {Array<Clothes>} clothesList - Lists of Clothes
+* @param {Array&lt;Clothes>} clothesList - Lists of Clothes
 * @param {ApplyCb} callbackResult - Callback returning clothes can be used by the style engine.
 */
 exports.apply = function(user, clothesList, callback){
@@ -355,4 +383,26 @@ exports.apply = function(user, clothesList, callback){
             callback(err, clotheList);
         });
     });
-};
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-PersoEngine.html">PersoEngine</a></li><li><a href="module-StyleEngine.html">StyleEngine</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Jan 04 2016 16:24:02 GMT-0500 (EST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

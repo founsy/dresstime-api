@@ -2,6 +2,15 @@
 /*     DressTime Rules Engine              */
 /*******************************************/
 
+
+
+/**
+ * Rules manager module
+ * @module RulesEngine
+ */
+
+
+
 /*
 	Example litteral condition :
 	  if weather is beautiful & hot then
@@ -43,10 +52,11 @@ var casualRules = [
     ["5", "", "", "", "", ""]
 ];
 
-
+/**
+* Get Matrix Rules
+*/
 function getMatrixRules(style, weatherGroup, tempEval){
     var rules = casualRules[weatherGroup][tempEval];
-    console.log(rules);
     if (rules === ""){
         return [{ "clothe_subtype" : ["tshirt"], "clothe_type" : ["pants"] }, { "clothe_type" : ["maille", "top", "pants"]}];
     } else {
@@ -59,6 +69,10 @@ function getMatrixRules(style, weatherGroup, tempEval){
 //3	rain
 //4	wind
 //5	snow
+
+/**
+* Get weather group
+*/
 function getWeatherGroup(code){
     //2xx Thunderstorm
     //3xx Drizzle
@@ -92,6 +106,9 @@ function getWeatherGroup(code){
 // 3 - medium (< 17)
 // 4 - hot (<24)
 // 5 - very hot (> 24)
+/**
+* Get temperature evaluation
+*/
 function getTemperatureEval(low, high){
     if (high < 5){
         return 1;
@@ -106,6 +123,9 @@ function getTemperatureEval(low, high){
     }
 }
 
+/**
+* Build condition to be able to eval
+*/
 function buildCondition(property, condition){
 	var jsCondition = ""
 	if (condition.indexOf('||')){
@@ -120,6 +140,9 @@ function buildCondition(property, condition){
 	return jsCondition
 };
 
+/**
+* Interal function du execute rule on the source list
+*/
 function executeRule(listSource, rule){
     var arrayList = [];
 	
@@ -141,6 +164,10 @@ function executeRule(listSource, rule){
 /* Return an array of an array with lists   */
 /*             filtered by combination      */
 /********************************************/
+
+/**
+* Interface to execute the rules on the source list
+*/
 exports.execute = function(listSource, rules){
 	var result = [];
 	
@@ -150,6 +177,9 @@ exports.execute = function(listSource, rules){
     return result;
 };
 
+/**
+* Get rules
+*/
 exports.getRules = function(weatherCode, low, high, styles) {
     var weatherGroup = getWeatherGroup(weatherCode);
     var tempEval = getTemperatureEval(low, high);

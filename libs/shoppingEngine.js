@@ -1,10 +1,21 @@
+/**
+ * Module to manage outfits and specificly filtered the user's clothe list 
+ * depending on which clothe we already propose to him
+ * @module ShoppingEngine
+ */
+
+
 var rootPath = process.cwd();
 
 var db = require(rootPath + '/db/databases');
 var styleEngine = require(rootPath + '/libs/styleEngine');
 
-//@param : outfits list of generic clothes
-//@return : list of outfits of brand clothes
+/**
+* Get brand clothes matching with user's clothes
+* @param {Array.<Clothe>} brandClothes - Array of all the brand clothes
+* @param {Array.<Clothe>} dressingClothes - All the clothes contain into the user's wardrobe
+* @returns {Object} object containing brandClothe property and a list of clothes matching with it
+*/
 exports.execute = function(brandClothes, dressingClothes) {
     /*  ( top -> pants)
         ( maille -> pants)
