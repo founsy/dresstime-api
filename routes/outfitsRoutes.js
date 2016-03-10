@@ -80,12 +80,22 @@ function bestOutfits(outfits, style){
     }
 }
 
-function top2Outfits(outfits, style){
+function getMoment(style, moments, numberOfOutfits){
+    for (var item in moments){
+        if (moments[item].style === style && moments[item].number < 2){
+            moments[item].number++;
+            console.log("----------" + item);
+            return item;
+        }
+    }
+}
+
+function top2Outfits(outfits, number, style, moments){
     var result = [];
-    
-    for (var i=0; i < outfits.length && i < 2; i++){
+    for (var i=0; i < outfits.length && i < 2*number; i++){
         var outfit = outfits[i];
         outfit["style"] = style;
+        outfit["moment"] = getMoment(style, moments, i);
         result.push(outfit)
     }
     
@@ -173,27 +183,29 @@ function rmImages(clothes){
     return clothes;
 }
 
-function retrieveWeather(lat, long, timezone, callback){
-    weatherService.getWheather(lat, long, timezone, function(err, weather){
+function retrieveWeather(lat, long, timezone, lang, callback){
+    weatherService.getWheather(lat, long, timezone, lang, function(err, weather){
         callback(err, weather);
     });
 }
 
 function retrieveOutfitOfTheDay(req, callback){
     persoEngine.getOutfits(req.user, function(outfits){
-        if (outfits.length > 100){
-            callback(null, outfits);
+        if (outfits.length > 4){
+            console.log('Retrieve outfits already calculated');
+            return callback(null, outfits);
         } else {
             Clothe.find({clothe_userid: new ObjectId(req.user._id)}, function(err, clothes){
             if(err) {
                  callback(err, null);
             } else {
-                console.log("--->   v2.1 : ");
-                
                 var clothes = clothes;
                 var styles = [req.user.atWorkStyle, req.user.relaxStyle, req.user.onPartyStyle];
+                var moments = {"atWork" : { number: 0, style: req.user.atWorkStyle}, "relax": { number: 0, style: req.user.relaxStyle}, "onParty": { number: 0, style: req.user.onPartyStyle}};
+                var objStyle = deduplicateStyle(styles);
+                
                 var sex = req.user.gender;
-   
+                console.log(objStyle);
                 var rules = [];
                 if (req.user.gender == "M"){
                     rules = [ 
@@ -206,7 +218,7 @@ function retrieveOutfitOfTheDay(req, callback){
                     ];
                 }
 
-                var arrayOfCombinations = [], outfits = [];
+                var arrayOfCombinations = [], outfits = [], i=0;
 
                 async.series([
                     //Remove all clothes already propose a certain amount of time this week.
@@ -214,41 +226,56 @@ function retrieveOutfitOfTheDay(req, callback){
                         persoEngine.apply(req.user, clothes, function(err, clothesFiltered){
                             //Get an array of array of prefiltered list of clothe depending of rules
                             arrayOfCombinations = contextEngine.execute(clothesFiltered, rules);
-                            console.log("----------------------------------- " + clothesFiltered.length);
-                            callbackClothes(null);
+                            return callbackClothes(null);
                         });
                     },    
                     function(callbackOutfit){
-                        async.eachSeries(styles, function(style, endCallback){
+                        async.forEachOf(objStyle, function(number, style, endCallback){
                             async.eachSeries(arrayOfCombinations, function(item, callback){
+                                console.log(style + " " + number);
                                 item = removeClotheAlreadyUse(outfits, item);
                                 if (!check1ArrayIsEmpty(item)) {
                                     var temp = styleEngine.calculateOutfits(style, sex, item, 40)
                                     temp.sort(sortOutfits)
                                     
-                                    var selectedOutfits = top2Outfits(temp, style);
+                                    var selectedOutfits = top2Outfits(temp, number, style, moments);
                                     outfits = outfits.concat(selectedOutfits);
                                     callback();
                                 } else {
                                     callback();
                                 }
                             }, function(err){
-                                 endCallback();
+                                return endCallback(null);
                             });
                         }, function(err){
                             //Save current suggestion outfits
-                            persoEngine.saveOutfits(req.user, outfits);
-                            callbackOutfit(null, outfits);
+                            persoEngine.saveOutfits(req.user, outfits, function(err, outfits){
+                                console.log("saveOutfits");
+                                return callbackOutfit(null, outfits);
+                            });
                         });
                         
                     }
-                ], function(err, outfits){
-                    callback(null, outfits[1]);
+                ], function(err, results){
+                    console.log("End");
+                    return callback(null, results[1]);
                 });
             }
             });
         }            
     });
+}
+
+function deduplicateStyle(styles){
+    var objStyle = {};
+    for (var i = 0; i < styles.length; i++){
+        if (typeof objStyle[styles[i]] === 'undefined'){
+            objStyle[styles[i]] = 1;
+        } else {
+            objStyle[styles[i]]++;
+        }
+    }
+    return objStyle;
 }
 
 /**
@@ -390,18 +417,21 @@ router.post('/v2/', passport.authenticate(['facebook-token', 'bearer'], { sessio
 */
 router.get('/v2.1/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
     console.log("------------ v2.1");
+    console.log( req.acceptsLanguages());
+    var lang = req.acceptsLanguages().length > 0 ? req.acceptsLanguages()[0] : 'en';
     async.parallel({
-        weather : function(callback){
-            retrieveWeather(req.query.lat, req.query.long, req.query.timezone, function(err, weather){
-                callback(null, weather);
+       weather : function(callback){
+            retrieveWeather(req.query.lat, req.query.long, req.query.timezone, lang, function(err, weather){
+                return callback(null, weather);
             });
-        },    
+        }, 
         outfits : function(callback){
             retrieveOutfitOfTheDay(req, function(err, outfits){
-                callback(err, outfits);
+                return callback(err, outfits);
             });
         }
     },function (err, results){
+        console.log("send results");
         res.send(results);    
     });
 });
@@ -411,50 +441,88 @@ router.get('/v2.1/', passport.authenticate(['facebook-token', 'bearer'], { sessi
 * @param {Outfit} req.body - Outfit to save
 */
 router.post('/OOTD', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
-    //GET 
+    //POST 
     /*{
         style = "",
         clothes = [clothe_id, clothe_id...]
     }*/
     var user = req.user;
     var outfit = req.body;
-    req.body["userid"] = req.user._id
-    console.log(new Outfit(req.body));
-    /*
-    var newOutfit = new Outfit({userid: user._id, clothes : refClothes, style : outfits[i].style, matchingRate: outfits[i].matchingRate});
-        newOutfit.save(function (err) {
-            if (err) return callbackResult(err);
-            //return callbackResult(null, newOutfit);
-    }); */
-});
-
-//Return 1 Outfits by Style
-router.post('/today', passport.authenticate('bearer', { session: false }) , function(req, res) {
-    if (typeof req.body !== 'undefined' && typeof req.body.dressing !== 'undefined' && typeof req.body.weather !== 'undefined') {
-        var clothes = req.body.dressing;
-		var sex = req.body.sex;
-        var styles = ["business", "casual", "sportwear", "fashion"]
-        var weather = req.body.weather;
-        
-		var outfits = [], result = [];
-        for (var i = 0; i < styles.length; i++){
-             var rules = contextEngine.getRules(weather.code, weather.low, weather.high, styles[i]);
-            var arrayOfCombinations = contextEngine.execute(clothes, rules);
-            for (var j = 0; j < arrayOfCombinations.length; j++){
-                if (!check1ArrayIsEmpty(arrayOfCombinations[j])) {
-                    var temp = styleEngine.calculateOutfits(styles[i], sex, arrayOfCombinations[j]);
-                    if (temp.length > 0){
-                        outfits.push({style: styles[i], outfit: temp[0].outfit, matchingRate: temp[0].matchingRate});
-                        break;
-                    }
-                }
+    req.body["userid"] = req.user._id;
+    
+    
+    //Check if an outfit exist for today
+    var startDate = new Date(); // this is the starting date that looks like ISODate("2014-10-03T04:00:00.188Z")
+    startDate.setSeconds(0);
+    startDate.setHours(0);
+    startDate.setMinutes(0);
+    var query = { $and : [{userid: new ObjectId(user._id)}, { updated : { $gt: startDate}}, {isPutOn : true} ]};
+    
+    var clothes = req.body.clothes;
+    outfit.clothes = [];
+    console.log("Outfit " + outfit._id);
+    //Check if outfit was a suggestion
+    if (typeof outfit._id !== 'undefined' && outfit._id !== ""){ //Update outfit
+        Outfit.findOneAndUpdate(query, {$set: {'isPutOn': false}}, {upsert: false}, function(err, result){
+            async.each(clothes, 
+                function(clothe, callback) {
+                    Clothe.findOne({clothe_id : clothe.clothe_id}, function(err, clo){
+                        outfit.clothes.push(clo);
+                        callback();
+                    });
+                }, function(err){
+                    Outfit.update({_id: outfit._id}, {$set: {'isPutOn': true}, clothes: outfit.clothes}, {upsert: true}, function(err){
+                        console.log("Id present");
+                        console.log(err);
+                        if (err) return res.send(err);
+                        res.send("Success");
+                    });
+                });
+            });     
+    } else {
+        outfit.isPutOn = true;
+    
+        async.each(clothes, 
+            function(clothe, callback) {
+                Clothe.findOne({clothe_id : clothe.clothe_id}, function(err, clo){
+                    outfit.clothes.push(clo);
+                    callback();
+                });
+            }, function(err){
+                Outfit.findOneAndUpdate(query, {$set: {'isPutOn': false, clothes: outfit.clothes}}, {upsert: false}, function(err, result){
+                    console.log("new outfit");
+                    console.log(outfit);
+                    delete outfit._id;
+                    var newOutfit = new Outfit(outfit);
+                        newOutfit.save(function (err) {
+                            console.log("no id present");
+                            console.log(err);
+                            if (err) return res.send(err);
+                            res.send({isSuccess : true});
+                        });
+                    });
             }
-        }
-		res.send(outfits);
-	} else {
-		res.send(500,"Server Error"); return;
-	}
+        );
+    }
 });
 
+
+router.get('/outfitsPutOn', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res){
+    var startDate = new Date(new Date().setDate(new Date().getDate() - 30));
+    startDate.setSeconds(0);
+    startDate.setHours(0);
+    startDate.setMinutes(0);
+    
+    var query = {
+        $and : [{userid: new ObjectId(req.user._id)}, { updated : { $gt: startDate}}, {isPutOn : true} ]
+    }
+    Outfit
+        .find(query)
+        .populate('clothes')
+        .exec(function(err, outfits){
+            if(err) { return err; }
+            res.send(outfits);
+        });
+});
 
 module.exports = router;

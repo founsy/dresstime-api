@@ -5,7 +5,8 @@ var express = require('express'),
 	mongoDb = require(rootPath + '/db/mongodb'),
     passport = require('passport'),
     User = require(rootPath + '/models/user'),
-    MailVerification = require(rootPath + '/routes/mailVerification');
+    MailVerification = require(rootPath + '/routes/mailVerification'),
+    AccessToken = require(rootPath + '/models/accessToken');
 
 //sends the request through our local signup strategy, and if successful takes user to homepage, otherwise returns then to signin page
 router.post('/registration', function(req, res) {
@@ -28,33 +29,36 @@ router.post('/registration', function(req, res) {
         tempUnit: userCreate.tempUnit,
         gender: userCreate.gender,
         picture: userCreate.picture,
-        isVerified: userCreate.isVerified,
+        isVerified: true/*userCreate.isVerified*/,
         fb_id : userCreate.fb_id,
         fb_token: userCreate.fb_token
     });
     
     user.save(function(err, user) {
         if(err) {
-            res.send(err);
+            res.send(500, err);
         }else {
-            if (user.fb_id === ""){
+           /* if (user.fb_id === "" || !user.isVerified){
                 //Send Verification email
                 MailVerification.sendVerificationEmail(user.email, function(err, result){
                     res.send(user.getToSend()); 
                 });
-            } else {
+            } else { */
                 res.send(user.getToSend());
-            }
+            //}
         }
     });
 });
 
 //logs user out of site, deleting them from the session, and returns to homepage
 router.get('/logout', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
-  	if (req.user !== undefined){
+  	console.log("logout");
+    if (req.user !== undefined){
 		var name = req.user.username;
-		console.log("LOGGIN OUT " + req.user.username)
-		req.logout();
+        console.log(req.user.userId);
+        AccessToken.remove({userId : req.user.userId}, function(err){
+        });
+        req.logout();
 		res.send({ msg : "You have successfully been logged out " + name + "!" });
 	} else {
 		res.send({ msg : "Already logout!" });

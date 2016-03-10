@@ -23,7 +23,7 @@ function getDiffDay(date1, date2){
     var timeDiff = Math.abs(date2.getTime() - date1.getTime());
     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
     return diffDays;
-}
+}   
 
 function randomIntFromInterval(min,max) {
     return Math.floor(Math.random()*(max-min+1)+min);
@@ -86,10 +86,10 @@ function calculateSuggestionScoring(lastDate, currentDate){
 */
 function calculateStartingDate(isPutOn){
     var startDate = new Date(); // this is the starting date that looks like ISODate("2014-10-03T04:00:00.188Z")
-    startDate.setDate(startDate.getDate() - 5); //Return 3 days in the past
     startDate.setSeconds(0);
     startDate.setHours(0);
     startDate.setMinutes(0);
+    startDate.setDate(startDate.getDate() - 3); //Return 3 days in the past
     return startDate;
 };
 
@@ -113,17 +113,19 @@ function retrieveValuations(user, isPutOn, callback){
     endDate.setSeconds(0);
     endDate.setHours(0);
     endDate.setMinutes(0);
-
+    
      var query = {
-        $and : [{userid: new ObjectId(user._id)}, { updated : { $gt: startDate}},  { updated : { $lt: endDate}}, {isPutOn : isPutOn} ]
-    }
+        $and : [{userid: new ObjectId(user._id)}, { updated : { $gte: startDate, $lt: endDate}} , {isPutOn : isPutOn} ]
+    };
+     
+     //console.log(JSON.stringify(query));
       Outfit
         .find(query)
         .populate({ path: 'clothes' })
         .exec(function(err, outfits){
             if(err) { return callback(err); }
             var clotheValuation = {};
-            console.log(outfits.length);
+            //console.log(" Number of outfis : " + outfits.length);
             for (var i = 0; i < outfits.length; i++){
                 for (var j = 0; j < outfits[i].clothes.length; j++){
                     var clothe = outfits[i].clothes[j];
@@ -131,7 +133,7 @@ function retrieveValuations(user, isPutOn, callback){
                     if (!isPutOn){
                         //If proposition was yesterday add more than 1, to remove it from proposition
                         var diff = getDiffDay(endDate, outfits[i].updated);
-                        console.log(diff);
+                        //console.log(diff);
                         if (typeof clotheValuation[clothe.clothe_id] === 'undefined'){
                             clotheValuation[clothe.clothe_id] = score//diff > 1 ? 1 : randomIntFromInterval(1, 5);
                         } else {
@@ -186,18 +188,17 @@ function performDeleting(clothesList, putOnValuation, suggestionValuation, callb
         pants : 3,
         dress : 2
     };
-    
+    //console.log(suggestionValuation);
     number['top'] = clothesList.filter(function(el){ return el.clothe_type === 'top' }).length;
     number['maille'] = clothesList.filter(function(el){ return el.clothe_type === 'maille' }).length;
     number['pants'] = clothesList.filter(function(el){ return el.clothe_type === 'pants' }).length;
     number['dress'] = clothesList.filter(function(el){ return el.clothe_type === 'dress' }).length;
-    console.log(number);
+    //console.log(number);
     var clotheListFiltered = clothesList;
     
     for (var i = clothesList.length - 1; i >= 0 ; i--){
         var clothe = clothesList[i];
         var type = clothe.clothe_type.toLocaleLowerCase()
-        console.log(type);
         //Get the frequency allowed for the type
         var putOnFrequency = calculateFrequency(number[type], putOnFrequencyCst[type]);
         //Get the frequency allowed for the type
@@ -229,7 +230,7 @@ function performDeleting(clothesList, putOnValuation, suggestionValuation, callb
     number['maille'] = clotheListFiltered.filter(function(el){ return el.clothe_type === 'maille' }).length;
     number['pants'] = clotheListFiltered.filter(function(el){ return el.clothe_type === 'pants' }).length;
     number['dress'] = clotheListFiltered.filter(function(el){ return el.clothe_type === 'dress' }).length;
-    console.log(number);
+    //console.log(number);
     
     callback(null, clotheListFiltered);
 };
@@ -251,28 +252,31 @@ exports.getOutfits = function(user, cb){
     startDate.setSeconds(0);
     startDate.setHours(0);
     startDate.setMinutes(0);
+    console.log(startDate);
+    var queryIsPutOn = {
+        $and : [{userid: new ObjectId(user._id)}, { updated : { $gt: startDate}}, {isPutOn: true} ]
+    };
     
-    var query = {
-        $and : [{userid: new ObjectId(user._id)}, { updated : { $gt: startDate}} ]
-    }
+    var resultToSend = [];
+    
     Outfit
-        .find(query)
+        .find(queryIsPutOn)
         .populate('clothes')
         .exec(function(err, outfits){
-            if(err) { return err; }
-            var resultToSend = [];
-            for (var i = 0; i < outfits.length; i++){
-                styleCalc(outfits[i].matchingRate);
-                resultToSend.push(
-                    {
-                        outfit : outfits[i].clothes,
-                        matchingRate: outfits[i].matchingRate,
-                        style: outfits[i].style
-                    }
-                );
+            if (outfits.length > 0){
+                resultToSend.push( outfits[0]);
             }
-           return cb(resultToSend);
-        });
+            var query = { $and : [{userid: new ObjectId(user._id)}, { updated : { $gt: startDate}} ] };
+            Outfit.find(query).populate('clothes').exec(function(err, outfits){
+                if(err) { return err; }
+                var resultToSend = [];
+                for (var i = 0; i < outfits.length && resultToSend.length < 6; i++){
+                    styleCalc(outfits[i].matchingRate);
+                    resultToSend.push(outfits[i]);
+                }
+                return cb(resultToSend);
+            });
+     });
 };
 
 /**
@@ -300,23 +304,28 @@ exports.saveOutfits = function(user, outfits, callbackResult){
     }
      Outfit.find(query, function(err, result){
         if (result.length < 12){
-            for (var i= 0; i < outfits.length; i++){
-                var outfit = outfits[i].outfit;
-                var refClothes = [];
-                for (var j = 0; j < outfit.length; j++){
-                    refClothes.push(outfit[j]._id);
+            var newOutfits = [];
+            async.each(outfits, 
+                function(outfitObj, callback) {
+                    var refClothes = [];
+                    for (var j = 0; j < outfitObj.outfit.length; j++){
+                        refClothes.push(outfitObj.outfit[j]._id);
+                    }
+                    var newOutfit = new Outfit({userid: user._id, clothes : refClothes, style : outfitObj.style, matchingRate: outfitObj.matchingRate, moment: outfitObj.moment});
+                    newOutfit.save(function (err, outfitWithId) {
+                        outfitObj._id = outfitWithId._id;
+                        newOutfits.push(outfitObj);
+                        if (err) return callbackResult(err);
+                        callback(null, outfitWithId);
+                    });
+                }, function(err){
+                    return callbackResult(null, newOutfits);        
                 }
-                           
-                var newOutfit = new Outfit({userid: user._id, clothes : refClothes, style : outfits[i].style, matchingRate: outfits[i].matchingRate});
-                newOutfit.save(function (err) {
-                    if (err) return callbackResult(err);
-                    //return callbackResult(null, newOutfit);
-                });
-            }
+            );
+        } else {
+            return callbackResult(null, result);   
         }
-         //return callbackResult(null, result);
-     });
-    
+    });
 };
 
 /**

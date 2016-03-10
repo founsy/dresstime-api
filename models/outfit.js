@@ -17,6 +17,9 @@ var mongoose = require('mongoose'),
         style: {
             type: String
         },
+        moment: {
+            type: String
+        },
         matchingRate: {
             type: Number
         },

@@ -16,7 +16,6 @@ var RefreshToken = require(rootPath + 'models/refreshToken');
 
 passport.use(new BasicStrategy(
     function(username, password, done) {
-         console.log("BasicStrategy");
         Client.findOne({ clientId: username }, function(err, client) {
             if (err) { 
             	return done(err); 
@@ -37,8 +36,6 @@ passport.use(new BasicStrategy(
 
 passport.use(new ClientPasswordStrategy(
     function(clientId, clientSecret, done) {
-        console.log("ClientPasswordStrategy");
-    
         Client.findOne({ clientId: clientId }, function(err, client) {
             if (err) { 
             	return done(err); 
@@ -60,7 +57,6 @@ passport.use(new ClientPasswordStrategy(
 passport.use(new BearerStrategy(
     function(accessToken, done) {
         AccessToken.findOne({ token: accessToken }, function(err, token) {
-            console.log("BearerStrategy");
             if (err) { 
             	return done(err); 
             }
@@ -103,7 +99,6 @@ passport.use(new FacebookTokenStrategy({
     clientSecret        : "9c9fe3d9f28454b6a946c8dc0828bf3e",
     profileFields: ["id", "email", "gender", "name", 'displayName', 'profileUrl', 'picture']
   }, function(accessToken, refreshToken, profile, done) {
-    console.log('FacebookTokenStrategy');
     
     User.findOne({fb_id: profile.id}, function (error, user) {
         //If not user exists in our login system, send facebook profile to create an account with him
@@ -115,55 +110,3 @@ passport.use(new FacebookTokenStrategy({
     });
   }
 ));
-
-/*
-passport.use('facebook', new FacebookStrategy ({
-        clientID        : "192759377738235",
-        clientSecret    : "9c9fe3d9f28454b6a946c8dc0828bf3e",
-        callbackURL     : "http://127.0.0.1:3000/auth/facebook/callback",
-        //enableProof     : false,
-        profileFields: ["id", "email", "gender", "name", 'displayName', 'profileUrl', 'picture']
-    },
- 
-  // facebook will send back the tokens and profile
-  function(access_token, refresh_token, profile, done) {
-    console.log('profile', profile);
-    console.log("FacebookTokenStrategy");
-    // asynchronous
-    process.nextTick(function() {
-     
-      // find the user in the database based on their facebook id
-      User.findOne({ 'id' : profile.id }, function(err, user) {
- 
-        // if there is an error, stop everything and return that
-        // ie an error connecting to the database
-        if (err)
-          return done(err);
- 
-          // if the user is found, then log them in
-          if (user) {
-            return done(null, user); // user found, return that user
-          } else {
-            // if there is no user found with that facebook id, create them
-            var newUser = new User();
- 
-            // set all of the facebook information in our user model
-            newUser.fb.id    = profile.id; // set the users facebook id                 
-            newUser.fb.access_token = access_token; // we will save the token that facebook provides to the user                    
-            newUser.fb.firstName  = profile.name.givenName;
-            newUser.fb.lastName = profile.name.familyName; // look at the passport user profile to see how names are returned
-            newUser.fb.email = profile.emails[0].value; // facebook can return multiple emails so we'll take the first
-            
-            //return done(null, profile);
-            // save our user to the database
-            newUser.save(function(err) {
-              if (err)
-                throw err;
- 
-              // if successful, return the new user
-              return done(null, newUser);
-            });
-         } 
-      });
-    });
-})); */

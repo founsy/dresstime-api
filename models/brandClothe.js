@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
 	Schema = mongoose.Schema,
 
-	Clothe = new Schema({
+	BrandClothe = new Schema({
         clothe_id: {
 			type: String,
 			unique: true,
@@ -41,23 +41,27 @@ var mongoose = require('mongoose'),
         clothe_image: {
             type: String
         },
-        clothe_favorite: {
-            type: Boolean
+        clothe_brand : {
+            type: String
         },
-        clothe_userid: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+        clothe_brandLogo: {
+            type: String
+        },
+        clothe_price : {
+             type: Number
+        },
+        clothe_currency : {
+             type: String
+        },
+        clothe_shopUrl : {
+            type: String
+        },
+        clothe_sexe : {
+            type: String
         },
 		updated: {
 			type: Date,
 			default: Date.now
 		}
 	});
-
-Clothe.virtual('Id')
-.get(function () {
-    console.log(this.id);
-	return this.id;
-});
-
-module.exports = mongoose.model('Clothe', Clothe);
+module.exports = mongoose.model('BrandClothe', BrandClothe);

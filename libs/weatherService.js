@@ -89,9 +89,6 @@ function getCurrentWeather(unit, lat, long, callback){
     
     // do the GET request
     var reqGet = http.request(optionsget, function(res) {
-        console.log("statusCode: ", res.statusCode);
-        // uncomment it for header details
-        //  console.log("headers: ", res.headers);
         res.on('data', function(data) {
             finalData += data.toString();
         });
@@ -117,9 +114,6 @@ function getForecastWeather(unit, lat, long, callback){
     var finalData = "";
     
     var reqGet = http.request(optionsget, function(res) {
-        console.log("statusCode: ", res.statusCode);
-        // uncomment it for header details
-        //  console.log("headers: ", res.headers);
         res.on('data', function(data) {
             finalData += data.toString();
         });
@@ -156,23 +150,18 @@ function getLocalDateTime(timezone){
 function wrapToWeather(object, time, timezone){
     var weather = {};
     if (typeof object !== 'undefined'){
-        var date = getLocalDateTime(timezone);
-        console.log(timezone);
-        console.log(date);
-        
-      /*  var offset = -5;
-       console.log( new Date( new Date().getTime() + offset * 3600 * 1000).toUTCString().replace( / GMT$/, "" )) */
-        
+        var date = getLocalDateTime(timezone); 
         var hour = date.getHours()
+        
         if (typeof object["dt_txt"] !== "undefined"){
             hour = new Date(object["dt_txt"]).getHours();
         }
         
         weather["hour"] = hour;
         weather["time"] = time;
-        weather["temp"] = object["main"]["temp"];
-        weather["tempMin"] = object["main"]["temp_min"];
-        weather["tempMax"] = object["main"]["temp_max"];
+        weather["temp"] = typeof object["main"]["temp"] !== "undefined" ? object["main"]["temp"] : 0;
+        weather["tempMin"] = typeof object["main"]["temp_min"] !== "undefined" ? object["main"]["temp_min"] : 0;
+        weather["tempMax"] = typeof object["main"]["temp_max"] !== "undefined" ? object["main"]["temp_max"] : 0;
         weather["code"] = object["weather"][0]["id"];
         weather["icon"] = codeToFont(object["weather"][0]["id"]);
         
@@ -240,21 +229,34 @@ function getTimeFrame(timezone){
          return [9, 15]
     }
     return null
+};
+
+function getComments(lang, code){
+    if (code >= 200 && code <= 232){ //Thunderstorm 
+        return lang === "en" ? "I'm singing in the rain" : "Il peut il mouille, c'est la fête à la grenouille";
+    } else  if (code >= 300 && code <= 321){ //Drizzle 
+        return lang === "en" ? "I'm singing in the rain" : "Il peut il mouille, c'est la fête à la grenouille";
+    } else  if (code >= 500  && code <= 531 ){ //Rain
+        return lang === "en" ? "I'm singing in the rain" : "Il peut il mouille, c'est la fête à la grenouille";
+    } else  if (code >= 600  && code <= 622  ){ //Snow  
+        return lang === "en" ? "Snowball fight" : "On oublie pas le bonnet et les moufles!";
+    } else  if (code >= 701  && code <= 781   ){ //Atmosphere    
+        return lang === "en" ? "What a beautiful day!" : "Au dessus des nuages, le ciel est toujours bleu";
+    } else if(code === 800){ //Sun 
+        return lang === "en" ? "What a beautiful day!" : "Quelle belle journée!";
+    } else if (code >= 801 && code <= 804){ //Clouds 
+        return lang === "en" ? "What a beautiful day!" : "Au dessus des nuages, le ciel est toujours bleu";
+    }
 }
 
-exports.getWheather = function(lat, long, timezone, callback){
+exports.getWheather = function(lat, long, timezone, lang, callback){
     if (typeof lat !== 'undefined' && typeof long !== 'undefined'){
         getCurrentWeather('metric', lat, long, function(errorCurrent, currentWeather){
-            if (errorCurrent) 
+            if (errorCurrent){
                 return callback(errorCurrent)
-            getForecastWeather('metric', lat, long, function(error, forecastWeather) {
-                if (error){
-                    return callback(error)
-                }
-                var timezoneUTC = typeof timezone !== 'undefined' ? timezone : 0;
-                
-                callback(null, wrapListWeather(currentWeather, forecastWeather, timezone)); 
-            });
+            }
+            var currentWeather = wrapToWeather(currentWeather, "Now", timezone);
+            callback(null, {"current" : currentWeather, "comment" : getComments(lang, currentWeather.code)});
         });
     } else {
         callback('Not coordinate', null); 

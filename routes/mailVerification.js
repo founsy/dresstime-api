@@ -95,13 +95,10 @@ function checkTokenIsValid(verifToken, callback){
     });
 };
 
+router.sendVerificationEmail = function(email, callback){
+    sendVerificationEmail(email, callback);
+};
 
-router.get('/send',function(req,res){
-    sendVerificationEmail(req.query.email, function(err, result){
-        console.log(err);
-        res.send(result);                                                               
-    });
-});
 
 router.get('/verify',function(req,res){
     checkTokenIsValid(req.query.id, function(err, result){

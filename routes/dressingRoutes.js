@@ -49,13 +49,11 @@ router.post('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { s
 router.put('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
     var newClothe = req.body;
-    console.log(newClothe.clothe_id);
     Clothe.findOneAndUpdate({clothe_id: newClothe.clothe_id}, newClothe, {upsert:true}, function(err, doc){
-        if (err) 
+        if (err) {
             return res.send(500, { error: err });
-        else{
-            console.log(doc);
-            return res.send("succesfully saved");
+        } else {
+            return res.send({result: "succesfully saved"});
         }
     });
 });
