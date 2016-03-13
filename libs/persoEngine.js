@@ -117,15 +117,13 @@ function retrieveValuations(user, isPutOn, callback){
      var query = {
         $and : [{userid: new ObjectId(user._id)}, { updated : { $gte: startDate, $lt: endDate}} , {isPutOn : isPutOn} ]
     };
-     
-     //console.log(JSON.stringify(query));
+
       Outfit
         .find(query)
         .populate({ path: 'clothes' })
         .exec(function(err, outfits){
             if(err) { return callback(err); }
             var clotheValuation = {};
-            //console.log(" Number of outfis : " + outfits.length);
             for (var i = 0; i < outfits.length; i++){
                 for (var j = 0; j < outfits[i].clothes.length; j++){
                     var clothe = outfits[i].clothes[j];
@@ -133,7 +131,6 @@ function retrieveValuations(user, isPutOn, callback){
                     if (!isPutOn){
                         //If proposition was yesterday add more than 1, to remove it from proposition
                         var diff = getDiffDay(endDate, outfits[i].updated);
-                        //console.log(diff);
                         if (typeof clotheValuation[clothe.clothe_id] === 'undefined'){
                             clotheValuation[clothe.clothe_id] = score//diff > 1 ? 1 : randomIntFromInterval(1, 5);
                         } else {
@@ -143,7 +140,6 @@ function retrieveValuations(user, isPutOn, callback){
                     } else {
                         if (typeof clotheValuation[clothe.clothe_id] === 'undefined') {
                             clotheValuation[clothe.clothe_id] = score;
-                            break;
                         } else {
                             //Increment the valuations
                             clotheValuation[clothe.clothe_id]++;
@@ -152,7 +148,7 @@ function retrieveValuations(user, isPutOn, callback){
                     }
                 }
              }
-             callback(null, clotheValuation);
+            callback(null, clotheValuation);
         });
 };
 
@@ -185,10 +181,10 @@ function performDeleting(clothesList, putOnValuation, suggestionValuation, callb
     var suggestionFrequencyCst = {
         maille : 3,
         top : 2,
-        pants : 3,
+        pants : 4,
         dress : 2
     };
-    //console.log(suggestionValuation);
+    //console.log(putOnValuation);
     number['top'] = clothesList.filter(function(el){ return el.clothe_type === 'top' }).length;
     number['maille'] = clothesList.filter(function(el){ return el.clothe_type === 'maille' }).length;
     number['pants'] = clothesList.filter(function(el){ return el.clothe_type === 'pants' }).length;
@@ -210,23 +206,23 @@ function performDeleting(clothesList, putOnValuation, suggestionValuation, callb
             clotheListFiltered.splice(i, 1);
             //Decrement counter
             number[clothe.clothe_type]--;
-            break;
-        }
-        // Now, we can verified if the number of clothe resting is > 3 to continue
-        if (number[clothe.clothe_type] < 3) break;
-        
-        // In case of suggestion deleting - Catch if the limit of clothe necessary for 				
-        //calculate outfit is not exceeded
-        if (suggestionValuation[clothe.clothe_id] >= suggestionFrequency 
-            && number[clothe.clothe_type] - 1 > 3) {
-            //Remove clothe of the list 
-            clotheListFiltered.splice(i, 1);
-            //Decrement total number
-            number[clothe.clothe_type]--;
+        } else {
+            // Now, we can verified if the number of clothe resting is > 3 to continue
+            if (number[clothe.clothe_type] < 3) break;
+
+            // In case of suggestion deleting - Catch if the limit of clothe necessary for 				
+            //calculate outfit is not exceeded
+            if (suggestionValuation[clothe.clothe_id] >= suggestionFrequency 
+                && number[clothe.clothe_type] - 1 > 3) {
+                //Remove clothe of the list 
+                clotheListFiltered.splice(i, 1);
+                //Decrement total number
+                number[clothe.clothe_type]--;
+            }
         }
     }
     
-    number['top'] = clothesList.filter(function(el){ return el.clothe_type === 'top' }).length;
+    number['top'] = clotheListFiltered.filter(function(el){ return el.clothe_type === 'top' }).length;
     number['maille'] = clotheListFiltered.filter(function(el){ return el.clothe_type === 'maille' }).length;
     number['pants'] = clotheListFiltered.filter(function(el){ return el.clothe_type === 'pants' }).length;
     number['dress'] = clotheListFiltered.filter(function(el){ return el.clothe_type === 'dress' }).length;
@@ -348,12 +344,16 @@ exports.apply = function(user, clothesList, callback){
         //Retrieva valuation for clothe put On
         function(callback){ 
             retrieveValuations(user, true, function(err, putOnValuation){
+                //console.log("putOnValuation");
+                //console.log(putOnValuation);
                 callback(err, putOnValuation);
             });
         },
         //Retrieva valuation for clothe suggested
         function(callback){
             retrieveValuations(user, false, function(err, suggestionValuation){
+                //console.log("suggestionValuation");
+                //console.log(suggestionValuation);
                 callback(err, suggestionValuation);
             });
         }

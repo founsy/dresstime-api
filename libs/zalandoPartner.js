@@ -50,7 +50,7 @@ var brandWomen = {
     "river-island" : ["RI9"],
     "ted-baker" : ["TE4"], 
     "topshop" : ["TP7"],
-    "urbar-outfitters" : ["UO1"],
+    "urbar-outfitters" : ["UR6", "UX8", "UR5"],
     "nike" : ["NI1"],
     "adidas" : ["AD1", "AD7"]
 };
@@ -264,7 +264,6 @@ function getClothes(sexe, categorie, type, callbackSaved){
 };
 
 exports.retrieveProducts = function(){
-    console.log(catTranlationFrWomen);
     async.forEachOf(catTranlationFrWomen, function (value, key, callback){
         getClothes("female", key, value, function(err){
             console.log("categorie finnsih");

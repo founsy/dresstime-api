@@ -250,7 +250,6 @@ function retrieveOutfitOfTheDay(req, callback){
                         }, function(err){
                             //Save current suggestion outfits
                             persoEngine.saveOutfits(req.user, outfits, function(err, outfits){
-                                console.log("saveOutfits");
                                 return callbackOutfit(null, outfits);
                             });
                         });

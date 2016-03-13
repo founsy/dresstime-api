@@ -40,11 +40,11 @@ router.get('/', passport.authenticate(['facebook-token', 'bearer'], { session: f
         }
     });
 });
-
+/*
 router.get('/zalando', function(req, res) {
     console.log("zalando");
     zalandoPartner.retrieveProducts();
     res.send("success1");
-});
+}); */
            
 module.exports = router;
