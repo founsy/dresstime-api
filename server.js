@@ -20,6 +20,8 @@ var auth = require('./routes/authRoutes');
 var outfits = require('./routes/outfitsRoutes');
 var brandOutfits = require('./routes/brandOutfitsRoutes');
 var mailVerification = require('./routes/mailVerification');
+var scheduler = require('./libs/NotificationsManager');
+
 
 var app = express();
 
@@ -38,6 +40,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(methodOverride('Authorization'));
 app.use(passport.initialize());
+
+
 
 app.use('/', api);
 app.use('/api', api);

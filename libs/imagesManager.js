@@ -39,8 +39,10 @@ exports.createImage = function(clothe_id, clothe_image){
     var name = clothe_id + '.jpg';
     fs.writeFile(rootPath + "/images/" + name, imageBuffer.data, function(err) {
         if (err) { console.log(err); return false; }
+        console.log("End image creating");
         return true;
     });
+    
 }
 
 //For now, read image file and convert into base64

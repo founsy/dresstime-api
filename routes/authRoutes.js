@@ -6,7 +6,10 @@ var express = require('express'),
     passport = require('passport'),
     User = require(rootPath + '/models/user'),
     MailVerification = require(rootPath + '/routes/mailVerification'),
+    ResetPasswordToken = require(rootPath + '/models/resetPasswordToken'),
     AccessToken = require(rootPath + '/models/accessToken');
+    
+    var ObjectId = require('mongoose').Types.ObjectId;
 
 //sends the request through our local signup strategy, and if successful takes user to homepage, otherwise returns then to signin page
 router.post('/registration', function(req, res) {
@@ -29,13 +32,14 @@ router.post('/registration', function(req, res) {
         tempUnit: userCreate.tempUnit,
         gender: userCreate.gender,
         picture: userCreate.picture,
-        isVerified: true/*userCreate.isVerified*/,
+        isVerified: true,
         fb_id : userCreate.fb_id,
         fb_token: userCreate.fb_token
     });
     
     user.save(function(err, user) {
         if(err) {
+        	console.log(err);
             res.send(500, err);
         }else {
            /* if (user.fb_id === "" || !user.isVerified){
@@ -80,5 +84,72 @@ router.get('/facebook/callback',
     console.log("/facebook/callback");
     res.send(req.user.getToSend());
   });
+  
+router.get('/resetpassword/form', function(req, res){
+	var html = '<html><head>' +
+'<script>/*<![CDATA[*/function gup(c,b){if(!b){b=location.href}c=c.replace(/[\[]/,"\\[").replace(/[\]]/,"\\]");var a="[\\?&]"+c+"=([^&#]*)";var e=new RegExp(a);var d=e.exec(b);return d==null?null:d[1]}function setHiddenToken(){document.getElementsByName("token")[0].value=gup("verifToken")}/*]]>*/</script>'+
+'</head>' +
+'<body>' +
+'<form action="https://api.drez.io/auth/resetpassword/newpassword" method="post">' +
+'<div>' +
+'<label for="nom">New password :</label>' +
+'<input type="password" name="password" id="password" />' +
+'</div>' +
+'<input type="hidden" name="token" value="">' +
+'<button type="submit">Send</button>' +
+'</form>' +
+'<script>setHiddenToken();</script>' +
+'</body>' +
+'</html>'
+	res.send(html);
+
+});
+  
+router.get('/resetpassword/:email', function(req, res) {
+  	User.findOne({email : req.params.email}, function(err, user){
+        if(err || user === null)
+           res.send(500, err);
+        else {
+            //Send Verification email
+            MailVerification.sendResetPasswordEmail(user, function(err, result){
+                res.send({result : "OK "}); 
+            }); 
+        }          
+    });
+});
+
+router.post('/resetpassword/newpassword', function(req, res){
+	console.log(req.body);
+	var password = req.body.password;
+	ResetPasswordToken.findOne({verifToken: req.body.token}, function(err, token){	
+		if(err || token == null) {
+			res.send(500, err);
+		}
+		else {
+			console.log(token);
+			if( Math.round((Date.now()-token.created)/1000) < 600 ) {
+				var userId = token.userId; 
+                ResetPasswordToken.remove({ verifToken: token.verifToken }, function (err) {
+                    if (err) {
+                    	return res.send(500, err);
+                    } else {
+                    	User.findOne({_id : new ObjectId(userId)}, function (err, user){
+                    		console.log(user);
+                    		user.password = password;
+                    		user.save(function(err){
+                    			console.log(err);
+                    			if (err) {
+                    				return res.send(500, err);
+                    			} else {	
+                    				res.send({result: "OK"});
+                    			}
+                    		});
+                    	});	
+                    }
+                });
+            }
+		}
+	});
+});
 
 module.exports = router;

@@ -42,7 +42,7 @@ var mongoose = require('mongoose'),
         },
         isVerified: {
             type: Boolean,
-            default: false
+            default: true
         },
         picture: {
             type: String

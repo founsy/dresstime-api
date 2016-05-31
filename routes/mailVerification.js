@@ -2,6 +2,7 @@ var rootPath = process.cwd();
 
 var nodemailer = require("nodemailer"),
     EmailVerifToken = require(rootPath + '/models/emailVerifToken'),
+    ResetPasswotdToken = require(rootPath + '/models/resetPasswordToken'),
     User = require(rootPath + '/models/user'),
     ObjectId = require('mongoose').Types.ObjectId,
     uuid = require('node-uuid');
@@ -10,6 +11,51 @@ var smtpTransport = require('nodemailer-smtp-transport');
 
 var express = require('express'),
 	router = express.Router();
+
+function sendResetPasswordEmail(user, callback){
+	/*
+	Here we are configuring our SMTP Server details.
+    STMP is mail server which is responsible for sending and recieving email.
+    */
+	var transport = nodemailer.createTransport(smtpTransport({
+		host: 'ssl0.ovh.net',
+		secureConnection: false, // use SSL
+		port: 587, // port for secure SMTP
+		auth: {
+			user: "flanglet@dresstime.io",
+			pass: "57Loge52S"
+			}
+	}));
+	
+	var token = new ResetPasswotdToken({
+            userId : user.userId,
+            email : user.email,
+            verifToken:  uuid.v4()
+    });
+	token.save(function(err, token) {
+		var link="https://api.drez.io/auth/resetpassword/form?verifToken="+token.verifToken;
+		console.log(link);
+		//Create Email
+		mailOptions={
+			to : user.email,
+			from: "flanglet@dresstime.io",
+			subject : "Please reset your password",
+			html : "Hello,<br> Please Click on the link to verify your email.<br><a href="+link+">Click here to verify</a>" 
+		}
+		console.log("Email Sending");
+		//Send it
+		transport.sendMail(mailOptions, function(error, response){
+			console.log("sendMail");
+			if(error){
+				console.log(error);
+				callback(error);
+			}else{
+				console.log("Email Send");
+				callback(null,  response.message)
+			}
+		}); 
+	});
+}
 
 
 function sendVerificationEmail(email, callback){
@@ -97,6 +143,10 @@ function checkTokenIsValid(verifToken, callback){
 
 router.sendVerificationEmail = function(email, callback){
     sendVerificationEmail(email, callback);
+};
+
+router.sendResetPasswordEmail = function(user, callback){
+    sendResetPasswordEmail(user, callback);
 };
 
 

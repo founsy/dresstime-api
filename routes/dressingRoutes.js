@@ -6,7 +6,18 @@ var express = require('express'),
 	mongoDb = require(rootPath + '/db/mongodb'),
     Clothe = require(rootPath + '/models/clothe'),
     imagesManager = require(rootPath + '/libs/imagesManager'),
-    ObjectId = require('mongoose').Types.ObjectId; 
+    ObjectId = require('mongoose').Types.ObjectId;
+
+var multer  = require('multer')
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'images/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+})
+var multipartMiddleware = multer({ storage: storage })
 
 router.get('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
@@ -37,14 +48,16 @@ router.post('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { s
         clothe_userid: req.user._id
     });
     
-    imagesManager.createImage(clothe.clothe_id, clothe.clothe_image);
-    
     clotheToSave.save(function(err){
         if(err)
            res.send(500, err);
         else
             res.send({ clothe: clothe});
     });	
+});
+
+router.post('/clothes/image/:id', passport.authenticate(['facebook-token', 'bearer'], { session: false }), multipartMiddleware.single("clothe_image"), function(req, res, next){
+	res.send({result: "ok"});
 });
 
 router.put('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
@@ -87,7 +100,7 @@ router.get('/clothes/image/:id', passport.authenticate(['facebook-token', 'beare
 router.delete('/clothes/:id', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
     
-    Clothe.remove({clothe_id: req.param('id')}, function(err, doc){
+    Clothe.remove({clothe_id: req.params.id}, function(err, doc){
         if (err) 
             return res.send(500, { error: err });
         else
