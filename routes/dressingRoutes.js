@@ -48,6 +48,10 @@ router.post('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { s
         clothe_userid: req.user._id
     });
     
+    if (typeof clothe.clothe_image !== 'undefined'){
+    	imagesManager.createImage(clothe.clothe_id, clothe.clothe_image);
+    }
+    
     clotheToSave.save(function(err){
         if(err)
            res.send(500, err);
