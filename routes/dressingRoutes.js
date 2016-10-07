@@ -6,6 +6,7 @@ var express = require('express'),
 	mongoDb = require(rootPath + '/db/mongodb'),
     Clothe = require(rootPath + '/models/clothe'),
     imagesManager = require(rootPath + '/libs/imagesManager'),
+    persoEngine = require(rootPath + '/libs/persoEngine'),
     ObjectId = require('mongoose').Types.ObjectId;
 
 var multer  = require('multer')
@@ -17,7 +18,7 @@ var storage = multer.diskStorage({
     cb(null, file.originalname)
   }
 })
-var multipartMiddleware = multer({ storage: storage })
+var multipartMiddleware = multer({ storage: storage }).single("clothe_image");
 
 router.get('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
     var user = req.user;
@@ -48,7 +49,7 @@ router.post('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { s
         clothe_userid: req.user._id
     });
     
-    if (typeof clothe.clothe_image !== 'undefined'){
+    if (typeof clothe.clothe_image !== 'undefined' && clothe.clothe_image !== ""){
     	imagesManager.createImage(clothe.clothe_id, clothe.clothe_image);
     }
     
@@ -60,8 +61,19 @@ router.post('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { s
     });	
 });
 
-router.post('/clothes/image/:id', passport.authenticate(['facebook-token', 'bearer'], { session: false }), multipartMiddleware.single("clothe_image"), function(req, res, next){
-	res.send({result: "ok"});
+router.post('/clothes/image/:id', passport.authenticate(['facebook-token', 'bearer'], { session: false })/*, multipartMiddleware.single("clothe_image")*/, function(req, res, next){
+	multipartMiddleware(req, res, function (err) {
+   	 if (err) {
+      // An error occurred when uploading
+      console.log(err);
+      return
+   	 }
+
+    // Everything went fine
+    res.send({result: "ok"});
+  })
+	
+	
 });
 
 router.put('/clothes/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
@@ -105,11 +117,18 @@ router.delete('/clothes/:id', passport.authenticate(['facebook-token', 'bearer']
     var user = req.user;
     
     Clothe.remove({clothe_id: req.params.id}, function(err, doc){
-        if (err) 
+        if (err) {
             return res.send(500, { error: err });
-        else
+        } else {
             imagesManager.removeImage(req.param('id')+".jpg")
+            //Remove suggestion of the day
+            persoEngine.deleteOutfits(user, function(err, result){
+            	if (err){
+            		console.log(err);
+            	}
+            });
             return res.send({ succeeded : true, msg : "succesfully deleted"});
+        }
     });
 });
 

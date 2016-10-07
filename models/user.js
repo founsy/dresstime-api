@@ -15,23 +15,27 @@ var mongoose = require('mongoose'),
 			unique: true,
 			required: true
 		},
+		firstName: {
+			type: String,
+			required: true
+		},
+		lastName: {
+			type: String,
+			required: true
+		},
         displayName: {
 			type: String,
 			unique: true,
             default: ""
 		},
-        atWorkStyle: {
+		styles: {
             type: String,
 			required: true
         },
-        onPartyStyle: {
-            type: String,
-			required: true
-        },
-        relaxStyle: {
-            type: String,
-			required: true
-        },
+        notification: {
+			type: String,
+			default: "morning"
+		},
         tempUnit: {
             type: String,
             default: "C"
@@ -64,7 +68,20 @@ var mongoose = require('mongoose'),
 		created: {
 			type: Date,
 			default: Date.now
-		}
+		},
+		//Obsolete
+		atWorkStyle: {
+            type: String,
+			required: true
+        },
+        onPartyStyle: {
+            type: String,
+			required: true
+        },
+        relaxStyle: {
+            type: String,
+			required: true
+        }
 	});
 
 User.methods.encryptPassword = function(password) {
@@ -96,9 +113,13 @@ User.methods.getToSend = function(){
         email : this.email,
         username: this.username,
         displayName: this.displayName,
+        firstName: this.firstName,
+        lastName: this.lastName,
         atWorkStyle: this.atWorkStyle,
-        onPartyStyle: this.onPartyStyle,
-        relaxStyle: this.relaxStyle,
+  		onPartyStyle: this.onPartyStyle,
+  		relaxStyle: this.relaxStyle,
+        styles: this.styles,
+        notification: this.notification,
         tempUnit: this.tempUnit,
         gender: this.gender,
         picture: this.picture,

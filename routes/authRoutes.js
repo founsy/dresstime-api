@@ -15,33 +15,33 @@ var express = require('express'),
 router.post('/registration', function(req, res) {
   	// If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.
-    console.log(req.body);
     var userCreate = req.body
     if (userCreate.fb_id === "" && userCreate.password === ""){
         res.send(new Error('Password can not be empty'));
     }
     
-    var user = new User({ 
-        username: userCreate.username, 
-        password: userCreate.password,
-        email: userCreate.email,
-        displayName: userCreate.displayName,
-        atWorkStyle: userCreate.atWorkStyle,
-        onPartyStyle: userCreate.onPartyStyle,
-        relaxStyle: userCreate.relaxStyle,
-        tempUnit: userCreate.tempUnit,
-        gender: userCreate.gender,
-        picture: userCreate.picture,
-        isVerified: true,
-        fb_id : userCreate.fb_id,
-        fb_token: userCreate.fb_token
-    });
+    userCreate.isVerified = true
+    
+    var user = new User(userCreate);
     
     user.save(function(err, user) {
         if(err) {
-        	console.log(err);
-            res.send(500, err);
-        }else {
+        	if (typeof err.toJSON !== 'undefined'){
+        		var json = err.toJSON();
+            	res.send(400, json);
+        	} else {
+        		var error = {name: err.name, fields: []};
+        		
+        		if (err.name == 'ValidationError') {
+    				for (field in err.errors) {
+    					error.fields.push({name : field, type: err.errors[field].properties.type});
+    				}
+    			}
+        		
+        		res.send(400, error);
+        	}
+        	
+        } else {
            /* if (user.fb_id === "" || !user.isVerified){
                 //Send Verification email
                 MailVerification.sendVerificationEmail(user.email, function(err, result){
@@ -90,7 +90,7 @@ router.get('/resetpassword/form', function(req, res){
 '<script>/*<![CDATA[*/function gup(c,b){if(!b){b=location.href}c=c.replace(/[\[]/,"\\[").replace(/[\]]/,"\\]");var a="[\\?&]"+c+"=([^&#]*)";var e=new RegExp(a);var d=e.exec(b);return d==null?null:d[1]}function setHiddenToken(){document.getElementsByName("token")[0].value=gup("verifToken")}/*]]>*/</script>'+
 '</head>' +
 '<body>' +
-'<form action="https://api.drez.io/auth/resetpassword/newpassword" method="post">' +
+'<form action="/auth/resetpassword/newpassword" method="post">' +
 '<div>' +
 '<label for="nom">New password :</label>' +
 '<input type="password" name="password" id="password" />' +

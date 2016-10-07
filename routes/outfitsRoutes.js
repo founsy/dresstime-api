@@ -92,10 +92,14 @@ function getMoment(style, moments, numberOfOutfits){
 
 function top2Outfits(outfits, number, style, moments){
     var result = [];
-    for (var i=0; i < outfits.length && i < 2*number; i++){
+    var total = typeof moments !== 'undefined' ? 2*number : number;
+    console.log(total);
+    for (var i=0; i < outfits.length && i < total; i++){
         var outfit = outfits[i];
         outfit["style"] = style;
-        outfit["moment"] = getMoment(style, moments, i);
+        if (typeof moments !== 'undefined') {
+        	outfit["moment"] = getMoment(style, moments, i);
+    	}
         result.push(outfit)
     }
     
@@ -200,12 +204,28 @@ function retrieveOutfitOfTheDay(req, callback){
                  callback(err, null);
             } else {
                 var clothes = clothes;
-                var styles = [req.user.atWorkStyle, req.user.relaxStyle, req.user.onPartyStyle];
-                var moments = {"atWork" : { number: 0, style: req.user.atWorkStyle}, "relax": { number: 0, style: req.user.relaxStyle}, "onParty": { number: 0, style: req.user.onPartyStyle}};
-                var objStyle = deduplicateStyle(styles);
+                var styles = [];
+                var objStyle = {};
+                
+                if (typeof req.user.styles !== 'undefined' &&  req.user.styles !== ""){
+                	styles = req.user.styles.split(',');
+                	var numberByStyle = Math.floor(6/styles.length);
+                	var total = 0;
+                	for (var i = 0; i < styles.length; i++){
+                		objStyle[styles[i]] =  numberByStyle
+                		total += numberByStyle
+                	}
+                	if (total < 6) {
+                		objStyle[styles[styles.length-1]] += 6 - total;
+                	}
+                } else {
+                	styles = [req.user.atWorkStyle, req.user.relaxStyle, req.user.onPartyStyle];
+                	var moments = {"atWork" : { number: 0, style: req.user.atWorkStyle}, "relax": { number: 0, style: req.user.relaxStyle}, "onParty": { number: 0, style: req.user.onPartyStyle}};
+                	objStyle = deduplicateStyle(styles);
+                }
+                
                 
                 var sex = req.user.gender;
-                console.log(objStyle);
                 var rules = [];
                 if (req.user.gender == "M"){
                     rules = [ 
@@ -231,8 +251,7 @@ function retrieveOutfitOfTheDay(req, callback){
                     },    
                     function(callbackOutfit){
                         async.forEachOf(objStyle, function(number, style, endCallback){
-                            async.eachSeries(arrayOfCombinations, function(item, callback){
-                                console.log(style + " " + number);
+                        	async.eachSeries(arrayOfCombinations, function(item, callback){
                                 item = removeClotheAlreadyUse(outfits, item);
                                 if (!check1ArrayIsEmpty(item)) {
                                     var temp = styleEngine.calculateOutfits(style, sex, item, 40)
@@ -240,9 +259,9 @@ function retrieveOutfitOfTheDay(req, callback){
                                     
                                     var selectedOutfits = top2Outfits(temp, number, style, moments);
                                     outfits = outfits.concat(selectedOutfits);
-                                    callback();
+                                    return callback();
                                 } else {
-                                    callback();
+                                    return callback();
                                 }
                             }, function(err){
                                 return endCallback(null);
@@ -358,23 +377,6 @@ router.post('/v2/', passport.authenticate(['facebook-token', 'bearer'], { sessio
                 var arrayOfCombinations = contextEngine.execute(clothes, rules);
                 console.log("----------------------------------- " + arrayOfCombinations.length);
 
-              /*  //For each combination calculate outfits
-                for (var i = 0; i < arrayOfCombinations.length; i++){
-                    //Check if all list of clothes are not empty.
-                    //arrayOfCombinations = removeClotheAlreadyUse(outfits, arrayOfCombinations);
-                    persoEngine.execute(req.user, rules[i].clothe_type, arrayOfCombinations[i], function(combinationFiltered){
-                        if (!check1ArrayIsEmpty(combinationFiltered)) {
-                            for (var j=0; j < styles.length; j++){
-                                var temp = styleEngine.calculateOutfits(styles[i], sex, combinationFiltered, 0)
-                                temp.sort(sortOutfits)
-                                console.log("Number Outfits " + temp.length + " " + styles[j]);
-                                var selectedOutfits = top2Outfits(temp, styles[j]);
-                                persoEngine.saveOutfits(req.user, selectedOutfits);
-                                outfits = outfits.concat(selectedOutfits);
-                            }
-                        }
-                    });
-                } */
                 async.each(styles, function(style, endCallback){
                     async.each(arrayOfCombinations, function(item, callback){
                         console.log(style);
@@ -431,6 +433,34 @@ router.get('/v2.1/', passport.authenticate(['facebook-token', 'bearer'], { sessi
         }
     },function (err, results){
         console.log("send results");
+        console.log(results);
+        res.send(results);    
+    });
+});
+
+/**
+* Get outfits route '/v2.2/'
+* @param {Number} req.query.lat
+* @param {Number} req.query.long
+* @param {Number} req.query.timezone
+* @returns {weather: Object, outfits: Array}
+*/
+router.get('/v2.2/', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res) {
+    console.log("------------ v2.2");
+    console.log( req.acceptsLanguages());
+    var lang = req.acceptsLanguages().length > 0 ? req.acceptsLanguages()[0] : 'en';
+    async.parallel({
+       weather : function(callback){
+            retrieveWeather(req.query.lat, req.query.long, req.query.timezone, lang, function(err, weather){
+                return callback(null, weather);
+            });
+        }, 
+        outfits : function(callback){
+            retrieveOutfitOfTheDay(req, function(err, outfits){
+                return callback(err, outfits);
+            });
+        }
+    },function (err, results){
         res.send(results);    
     });
 });
@@ -474,7 +504,7 @@ router.post('/OOTD', passport.authenticate(['facebook-token', 'bearer'], { sessi
                         console.log("Id present");
                         console.log(err);
                         if (err) return res.send(err);
-                        res.send("Success");
+                        res.send({isSuccess : true});
                     });
                 });
             });     
@@ -507,6 +537,7 @@ router.post('/OOTD', passport.authenticate(['facebook-token', 'bearer'], { sessi
 
 
 router.get('/outfitsPutOn', passport.authenticate(['facebook-token', 'bearer'], { session: false }) , function(req, res){
+    console.log("outfitsPutOn");
     var startDate = new Date(new Date().setDate(new Date().getDate() - 30));
     startDate.setSeconds(0);
     startDate.setHours(0);

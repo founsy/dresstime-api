@@ -49,12 +49,17 @@ router.put('/updateImages', passport.authenticate(['facebook-token', 'bearer'], 
 
 router.post('/', passport.authenticate(['facebook-token', 'bearer'], { session: false }), function(req, res){
 		var user = req.body;
-		mongoDb.insertUser(user)
-  		.then(function (result){ //case in which user already exists in db
-    		res.send(result);
-  		}).fail(function (error){
-  			res.send(500, error);
-  		});		
+		
+		var userToSave = User(user);
+		userToSave.save(function(err){
+			console.log(err);
+        	if(err){
+           		res.send(400, err);
+       	 	} else {
+            	res.send({ user: userToSave});
+            }
+    	});
+		
 	})
 	.put('/', passport.authenticate(['facebook-token', 'bearer'], { session: false }),function(req, res){
         var query = User.findOne();
@@ -66,14 +71,15 @@ router.post('/', passport.authenticate(['facebook-token', 'bearer'], { session: 
             user.email = typeof newUser.email !== 'undefined' ? newUser.email : user.email; 
             user.username = typeof newUser.username !== 'undefined' ? newUser.username : user.username;
             user.displayName = typeof newUser.displayName !== 'undefined' ? newUser.displayName : user.displayName;
-            user.atWorkStyle = typeof newUser.atWorkStyle !== 'undefined' ? newUser.atWorkStyle : user.atWorkStyle;
-            user.onPartyStyle = typeof newUser.onPartyStyle !== 'undefined' ? newUser.onPartyStyle : user.onPartyStyle;
-            user.relaxStyle = typeof newUser.relaxStyle !== 'undefined' ? newUser.relaxStyle : user.relaxStyle;
+            user.firstName = typeof newUser.firstName !== 'undefined' ? newUser.firstName : user.firstName;
+            user.lastName = typeof newUser.lastName !== 'undefined' ? newUser.lastName : user.lastName;
+            user.styles = typeof newUser.styles !== 'undefined' ? newUser.styles : user.styles;
             user.tempUnit = typeof newUser.tempUnit !== 'undefined' ? newUser.tempUnit : user.tempUnit;
             user.gender = typeof newUser.gender !== 'undefined' ? newUser.gender : user.gender;
             user.picture = typeof newUser.picture !== 'undefined' ? newUser.picture : user.picture;
             user.fb_id = typeof newUser.fb_id !== 'undefined' ? newUser.fb_id : user.fb_id;
             user.fb_token = typeof newUser.fb_token !== 'undefined' ? newUser.fb_token : user.fb_token;
+            user.notification =  typeof newUser.notification !== 'undefined' ? newUser.notification : user.notification;
             
             user.save(function(err) {
                 if (err) {

@@ -159,11 +159,22 @@ function wrapToWeather(object, time, timezone){
         
         weather["hour"] = hour;
         weather["time"] = time;
-        weather["temp"] = typeof object["main"]["temp"] !== "undefined" ? object["main"]["temp"] : 0;
-        weather["tempMin"] = typeof object["main"]["temp_min"] !== "undefined" ? object["main"]["temp_min"] : 0;
-        weather["tempMax"] = typeof object["main"]["temp_max"] !== "undefined" ? object["main"]["temp_max"] : 0;
-        weather["code"] = object["weather"][0]["id"];
-        weather["icon"] = codeToFont(object["weather"][0]["id"]);
+        if (typeof object["main"] !== 'undefined'){
+       		weather["temp"] = typeof object["main"]["temp"] !== "undefined" ? object["main"]["temp"] : 0;
+        	weather["tempMin"] = typeof object["main"]["temp_min"] !== "undefined" ? object["main"]["temp_min"] : 0;
+        	weather["tempMax"] = typeof object["main"]["temp_max"] !== "undefined" ? object["main"]["temp_max"] : 0;
+        } else {
+        	weather["temp"] = 15;
+        	weather["tempMin"] = 15;
+        	weather["tempMax"] = 15;
+        }
+        if (typeof object["weather"] !== 'undefined' && object["weather"].length > 0) {
+        	weather["code"] = object["weather"][0]["id"];
+        	weather["icon"] = codeToFont(object["weather"][0]["id"]);
+    	} else {
+    		weather["code"] = 800;
+    		weather["icon"] = codeToFont(weather["code"]);
+    	}
         
     }
     if (typeof object["name"] !== 'undefined'){

@@ -50,6 +50,7 @@ var generateTokens = function (data, done) {
 			console.log(err);
     		return done(err); 
     	}
+    	console.log(data.user);
     	done(null, tokenValue, refreshTokenValue, { 
     		'expires_in': config.get('security:tokenLife'),
             'user': data.user

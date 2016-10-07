@@ -297,7 +297,7 @@ exports.saveOutfits = function(user, outfits, callbackResult){
     
     var query = {
         $and : [{userid: new ObjectId(user._id)}, { updated : { $gt: startDate}} ]
-    }
+    };
      Outfit.find(query, function(err, result){
         if (result.length < 12){
             var newOutfits = [];
@@ -331,7 +331,29 @@ exports.saveOutfits = function(user, outfits, callbackResult){
  * @param {Error} error - Error during filtering clothes
  * @param {Array} clothes - List of clothes filtering depending of clothes already put on or suggested
  */
-
+ 
+ 
+ /**
+ * Delete outfits of the day
+ *
+ */
+exports.deleteOutfits = function(user, callback) {
+	var startDate = new Date(); // this is the starting date that looks like ISODate("2014-10-03T04:00:00.188Z")
+    startDate.setSeconds(0);
+    startDate.setHours(0);
+    startDate.setMinutes(0);
+    
+    var query = {
+        $and : [{userid: new ObjectId(user._id)}, { updated : { $gt: startDate}} ]
+    };
+    Outfit.remove(query, function(err, result){
+    	if (err){
+    		return callback(err, null);
+    	} else {
+    		callback(null, {success: true});
+    	}
+    });
+};
 
 /**
 * Remove all clothes already PutOn this week and exceeding the frequency authorized
@@ -341,7 +363,7 @@ exports.saveOutfits = function(user, outfits, callbackResult){
 */
 exports.apply = function(user, clothesList, callback){
     async.parallel([
-        //Retrieva valuation for clothe put On
+        //Retrieve valuation for clothe put On
         function(callback){ 
             retrieveValuations(user, true, function(err, putOnValuation){
                 //console.log("putOnValuation");
@@ -349,7 +371,7 @@ exports.apply = function(user, clothesList, callback){
                 callback(err, putOnValuation);
             });
         },
-        //Retrieva valuation for clothe suggested
+        //Retrieve valuation for clothe suggested
         function(callback){
             retrieveValuations(user, false, function(err, suggestionValuation){
                 //console.log("suggestionValuation");
